@@ -2,6 +2,7 @@
 namespace App\Kernel;
 
 use Symfony\Component\Dotenv\Dotenv;
+use App\Kernel\Http\Router;
 
 final class Bootstrap 
 {

@@ -9,4 +9,9 @@ class HomeController
     {
         echo "<h1>Welcome to the Home Page!</h1>"; // Changed text for clarity
     } 
+
+    public function edit(): void
+    {
+        echo 'kontol';
+    }
 }

@@ -112,9 +112,7 @@ class Router
                     throw new InvalidArgumentException(sprintf("Reflection Error: %s", $e->getMessage()));
                 }
             } 
-        } else {
-          throw new InvalidArgumentException(sprintf('Invalid "%s" HTTP Request', $_SERVER['REQUEST_METHOD']));
-        }
+        } 
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Kernel\Http\Router;
 
 // Define your application routes here
 Router::get('/', 'HomeController@index');
+Router::get('/edit', 'HomeController@edit');
 
 // Example of a route with a parameter:
 // Router::get('/users/(\d+)', 'UserController@show'); // Matches /users/123

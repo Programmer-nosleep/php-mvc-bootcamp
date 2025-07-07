@@ -3,5 +3,4 @@ namespace App\Models\User;
 
 class User
 {
-
 }
