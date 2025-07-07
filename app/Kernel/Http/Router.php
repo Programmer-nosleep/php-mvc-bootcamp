@@ -55,7 +55,7 @@ class Router
 
         $split = explode(self::SEPARATOR, $method); 
         $class_name = self::CONTROLLER . $split[0];
-        $method = $split[0];     
+        $method = $split[1];     
 
         try {
           if (!class_exists($class_name)) {
