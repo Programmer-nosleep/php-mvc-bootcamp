@@ -2,16 +2,27 @@
 // App/Controllers/HomeController.php
 namespace App\Controllers; // Changed namespace to just 'App\Controllers' for consistency with Router's CONTROLLER constant
 
+use App\Kernel\View;
+
 class HomeController
 {
     // The index method for the home page
-    public function index(): void
+    public function index()
     {
-        echo "<h1>Welcome to the Home Page!</h1>"; // Changed text for clarity
-    } 
+        $data = [
+            'name' => 'Hello, World!',
+            'framework' => 'PHP Custom Framework'
+        ];
+
+        // Pastikan Anda hanya memberikan 'home' sebagai nama tampilan,
+        // bukan 'home/index' atau 'home/index.html.php'
+        $htmlContent = View::render('home/home', 'Selamat Datang', $data);
+
+        echo $htmlContent;
+    }
 
     public function edit(): void
     {
-        echo 'kontol';
+        echo 'edit';
     }
 }

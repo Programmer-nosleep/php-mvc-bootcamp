@@ -1,9 +1,7 @@
 <?php
-// App/Kernel/Http/Router.php
 declare(strict_types=1);
 namespace App\Kernel\Http;
 
-// Enable all error reporting and display errors for debugging purposes
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
@@ -23,8 +21,10 @@ class Router
 {
     // Separator used in controller strings (e.g., 'ControllerName@methodName')
     private const SEPARATOR = '@';
+
     // Base namespace for all application controllers
     private const CONTROLLER = 'App\Controllers\\';
+
     // Stores the HTTP method for the current route being processed
     private static ?string $http_method = null;
 
