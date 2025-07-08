@@ -7,8 +7,9 @@ final class View
 {
     private const PATH = __DIR__ . '/../Templates/';
     private const FILE_EXTENSION = '.html.php';
-    private const ERROR_MESSAGE = '';
-    private const NOT_FOUND_ERROR_MESSAGE = '"%s" does not exist.';
+    private const ERROR_MESSAGE = [
+        'FILENAME_NOT_FOUND' => '"%s" does not exist.',
+    ];
 
     /**
      * Renders a view and returns its content as a string.
@@ -40,7 +41,7 @@ final class View
         } else {
             // If the view is not found, clean the buffer and throw an exception.
             ob_end_clean();
-            throw new ViewNotFound(sprintf(self::NOT_FOUND_ERROR_MESSAGE, $view . self::FILE_EXTENSION));
+            throw new ViewNotFound(sprintf(self::ERROR_MESSAGE['FILENAME_NOT_FOUND'], $view . self::FILE_EXTENSION));
         }
 
         // Include footer if it's not a partial view
