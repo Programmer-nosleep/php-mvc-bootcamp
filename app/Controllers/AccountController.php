@@ -3,49 +3,130 @@ namespace App\Controllers;
 
 use App\Kernel\Input;
 use App\Kernel\View;
+use App\Service\User as UserService; 
+use function App\redirect;
 
 class AccountController
 {
-  public function signin() : void
-  {
-    if (Input::get('signin_submit')) 
+    // Constants to define the message keys that will be used in the view.
+    // This helps maintain consistency in message variable names throughout the application.
+    private const MESSAGE_KEY = [
+        'SUCCESS' => 'success_message',
+        'WARNING' => 'warning_message',
+        'ERROR' => 'error_message',
+    ];
+
+    /**
+     * Constructor for the AccountController.
+     * Uses constructor property promotion to inject the UserService.
+     * A default instance is provided for convenience, but dependency injection
+     * frameworks would typically manage this.
+     *
+     * @param UserService $user_service An instance of the UserService.
+     */
+    public function __construct(private UserService $user_service = new UserService())
     {
-      echo Input::get('email');
     }
-    $render = View::render('auth/signin', 'Sign In');
 
-    echo $render;
-  }
-
-  public function signup() : void
-  {
-    if (Input::post('signup_submit'))
+    /**
+     * Handles the sign-in page display and form submission (if using GET).
+     */
+    public function signin() : void
     {
-      $fullname = Input::post('fullname');
-      $email = Input::post('email');
-      $password = Input::post('password');
-
-      if ($this->validate_email($email))
-      {
-
-      } else {
-        $view_var['erro_message'] = 'email is not valid.';
-      }
+        // Check if the signin form was submitted via GET method
+        if (Input::get('signin_submit')) 
+        {
+            // For demonstration: echo the email from GET parameters
+            echo "Email from GET signin: " . Input::get('email');
+            // In a real application, you would process login credentials here.
+        }
+        
+        // Render the sign-in view.
+        // Assuming 'auth/signin' is the template file path.
+        // The 'false' indicates it's a full page, not a partial.
+        $render = View::render('auth/signin', 'Sign In', ); 
+        echo $render;
     }
-    $render = View::render('auth/signup', 'Sign Up');
 
-    echo $render;
-  }
-  
-  public function edit() : void
-  {
-    $render = View::render('auth/edit', 'Edit Account');
+    /**
+     * Handles the sign-up page display and form submission.
+     * Processes POST requests for registration.
+     */
+    public function signup() : void
+    {
+        $view_vars = []; // Initialize an array to hold variables passed to the view (e.g., messages).
 
-    echo $render; 
-  }
+        // Check if the signup form was submitted via POST method
+        if (Input::post('signup_submit'))
+        {
+            // Retrieve form data from POST request
+            $fullname = Input::post('fullname');
+            $email = Input::post('email');
+            $password = Input::post('password');
 
-  private function validate_email(string $email) : bool
-  {
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-  }
+            // Validate if all required fields are present and not empty.
+            // Using trim() for email to handle cases with only whitespace.
+            if (empty($fullname) || empty(trim($email)) || empty($password))
+            {
+                // Set an error message if any field is empty.
+                // Using self::get_status_message() to get the correct key ('error_message').
+                $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
+            } 
+            // If all fields are present, proceed with email validation via UserService.
+            elseif ($this->user_service->validate_email('email'))
+            {
+                // If email is valid, proceed with user registration (e.g., save to database).
+                // Example: $this->user_service->registerUser($fullname, $email, $password);
+                
+                // After successful registration, redirect the user to the home page.
+                redirect('/?uri=home');
+                exit(); // Important: Stop script execution after redirection.
+            } 
+            // If email validation fails.
+            else 
+            {
+                // Set an error message for invalid email.
+                $view_vars[self::get_status_message('ERROR')] = 'Invalid email address.';
+            }
+        }
+
+        // Render the sign-up view, passing any messages or other variables.
+        // 'auth/signup' is the template file path.
+        // 'false' indicates it's a full page.
+        // $view_vars contains messages to be displayed.
+        $render = View::render('auth/signup', 'Sign Up', $view_vars);
+        echo $render;
+    }
+    
+    /**
+     * Handles the account edit page display.
+     */
+    public function edit() : void
+    {
+        // Render the account edit view.
+        // Assuming 'auth/edit' is the template file path.
+        // The 'false' indicates it's a full page.
+        $render = View::render('auth/edit', 'Edit Account' ); 
+        echo $render; 
+    }
+
+    /**
+     * Retrieves the appropriate string key for a given message status type.
+     * This method serves as a helper to get the actual variable name to be used
+     * in the view context array (e.g., 'success_message', 'error_message') based on
+     * an easily readable status key (e.g., 'SUCCESS', 'ERROR').
+     *
+     * @param string $status The desired message status key.
+     * Expected values include: 'SUCCESS', 'WARNING', 'ERROR'.
+     * @return string The corresponding string key for the message variable in the view.
+     * If the given status key is not found in MESSAGE_KEY,
+     * this method will return the string 'message' as a default value.
+     */
+    public static function get_status_message(string $status): string
+    {
+        // Returns the value from the MESSAGE_KEY array based on the provided $status key.
+        // The null coalescing operator (??) is used to provide a default value of 'message'
+        // if the $status key does not exist in MESSAGE_KEY, preventing an undefined array key error.
+        return self::MESSAGE_KEY[$status] ?? 'message';
+    }
 }

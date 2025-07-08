@@ -1,5 +1,5 @@
 <body>
-    <?php use function App\Kernel\site_local_url; ?>
+    <?php use function App\site_local_url; ?>
     <?php if (!empty($error_message)): ?>
         <?= $error_message ?>
     <?php endif; ?>

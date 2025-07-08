@@ -1,5 +1,5 @@
 <?php
-use function App\Kernel\site_local_url;
+use function App\site_local_url;
 ?>
   <hr>
   <footer>

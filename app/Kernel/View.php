@@ -7,8 +7,15 @@ final class View
 {
     private const PATH = __DIR__ . '/../Templates/';
     private const FILE_EXTENSION = '.html.php';
+
     private const ERROR_MESSAGE = [
         'FILENAME_NOT_FOUND' => '"%s" does not exist.',
+    ];
+
+    public const MESSAGE_KEY = [
+        'SUCCESS' => 'success_message',
+        'WARNING' => 'warning_message',
+        'ERROR' => 'error_message',
     ];
 
     /**
@@ -66,5 +73,22 @@ final class View
         // --- IMPORTANT: This line will help you debug! ---
         error_log("Attempting to load view from: " . $fullPath);
         return is_file(self::PATH . $filename . self::FILE_EXTENSION);
+    }
+
+    /**
+     * Retrieves the appropriate string key for a given message status type.
+     * This method serves as a helper to get the actual variable name to be used
+     * in the view context array (e.g., 'success_message', 'error_message') based on
+     * an easily readable status key (e.g., 'SUCCESS', 'ERROR').
+     *
+     * @param string $status The desired message status key.
+     * Expected values include: 'SUCCESS', 'WARNING', 'ERROR'.
+     * @return string The corresponding string key for the message variable in the view.
+     * If the given status key is not found in MESSAGE_KEY,
+     * this method will return the string 'message' as a default value.
+     */
+    public static function get_status_message(string $status): string
+    {
+        return self::MESSAGE_KEY[$status] ?? 'message';
     }
 }

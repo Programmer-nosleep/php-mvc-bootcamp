@@ -1,5 +1,5 @@
 <?php
-// App/Controllers/HomeController.php
+declare(strict_types=1);
 namespace App\Controllers; // Changed namespace to just 'App\Controllers' for consistency with Router's CONTROLLER constant
 
 use App\Kernel\View;

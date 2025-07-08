@@ -1,4 +1,4 @@
-<?php use function App\Kernel\site_local_url; ?>
+<?php use function App\site_local_url; ?>
 
 <div class="">
   <form method="POST" action="<?= site_local_url('/?uri=signin') ?>">
