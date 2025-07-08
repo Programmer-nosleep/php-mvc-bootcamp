@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace App\Controllers; // Changed namespace to just 'App\Controllers' for consistency with Router's CONTROLLER constant
+namespace App\Controllers;
 
 use App\Kernel\View;
 
 class HomeController
 {
-    // The index method for the home page
     public function index(): void
     {
         $data = [

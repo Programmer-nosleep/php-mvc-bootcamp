@@ -68,26 +68,29 @@ class AccountController
             // Using trim() for email to handle cases with only whitespace.
             if (empty($fullname) || empty(trim($email)) || empty($password))
             {
-                // Set an error message if any field is empty.
-                // Using self::get_status_message() to get the correct key ('error_message').
-                $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
-            } 
-            // If all fields are present, proceed with email validation via UserService.
-            elseif ($this->user_service->validate_email('email'))
-            {
-                // If email is valid, proceed with user registration (e.g., save to database).
-                // Example: $this->user_service->registerUser($fullname, $email, $password);
-                
-                // After successful registration, redirect the user to the home page.
+              // If all fields are present, proceed with email validation via UserService.
+              if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
+              {
+                /**
+                 * If email is valid, proceed with user registration (e.g., save to database).
+                 * 
+                 * Example: $this->user_service->registerUser($fullname, $email, $password);
+                 *  After successful registration, redirect the user to the home page. 
+                 */  
                 redirect('/?uri=home');
-                exit(); // Important: Stop script execution after redirection.
+                exit(); // Important: Stop script execution after redirection.   
+              } 
+              // If email validation fails.
+              else 
+              {
+                  // Set an error message for invalid email.
+                  $view_vars[self::get_status_message('ERROR')] = 'Invalid email address or password.';
+              }
+            } else {
+              // Set an error message if any field is empty.
+              // Using self::get_status_message() to get the correct key ('error_message').
+              $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
             } 
-            // If email validation fails.
-            else 
-            {
-                // Set an error message for invalid email.
-                $view_vars[self::get_status_message('ERROR')] = 'Invalid email address.';
-            }
         }
 
         // Render the sign-up view, passing any messages or other variables.
