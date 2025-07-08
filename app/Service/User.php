@@ -11,7 +11,7 @@ class User
     * @param string $email The email address to validate.
     * @return bool True if the email is valid, false otherwise.
     */
-    private function validate_email(string $email) : bool
+    public function validate_email(string $email) : bool
     {
       return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
@@ -23,7 +23,7 @@ class User
      * @param string $password the email address to validate.
      * @return bool True if the email is valid, false otherwise.
     */ 
-    private function validate_password(string $password) : bool
+    public function validate_password(string $password) : bool
     {
       return strlen($password) > self::MIN_PASSWORD;
     }
