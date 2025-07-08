@@ -14,15 +14,16 @@ class HomeController
             'framework' => 'PHP Custom Framework'
         ];
 
-        // Pastikan Anda hanya memberikan 'home' sebagai nama tampilan,
-        // bukan 'home/index' atau 'home/index.html.php'
-        $htmlContent = View::render('home/home', 'Selamat Datang', $data);
+        $htmlContent = View::render('home/home', 'Selamat Datang', $data, true);
 
         echo $htmlContent;
     }
 
     public function edit(): void
     {
-        echo 'edit';
+       View::render('home/view', 'Pages', [
+        'name' => 'Pages',
+        'content' => 'Lorem ipsum dolor sit amet.'
+       ], true); 
     }
 }

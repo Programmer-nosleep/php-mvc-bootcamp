@@ -7,6 +7,8 @@ final class View
 {
     private const PATH = __DIR__ . '/../Templates/';
     private const FILE_EXTENSION = '.html.php';
+    private const ERROR_MESSAGE = '';
+    private const NOT_FOUND_ERROR_MESSAGE = '"%s" does not exist.';
 
     /**
      * Renders a view and returns its content as a string.
@@ -23,18 +25,28 @@ final class View
         // Example: ['name' => 'John'] will become $name = 'John';
         extract($context);
 
-        // Starts output buffering. All subsequent output will be captured, not directly printed.
         ob_start();
+
+        // Include header if it's not a partial view
+
+        require self::PATH . 'partials/header.inc.html.php';
+
+
+        $viewPath = self::PATH . $view . self::FILE_EXTENSION;
 
         if (self::is_view_exist($view)) {
             // Includes the view file. The output from this file will be captured by ob_start().
-            include_once self::PATH . $view . self::FILE_EXTENSION;
+            include_once $viewPath;
         } else {
-            // If the view is not found, clean and end the buffer, then throw an exception.
+            // If the view is not found, clean the buffer and throw an exception.
             ob_end_clean();
-            // Re-enabling the ViewNotFound exception that was previously commented out.
-            throw new ViewNotFound(sprintf('%s does not exist', $view . self::FILE_EXTENSION));
+            throw new ViewNotFound(sprintf(self::NOT_FOUND_ERROR_MESSAGE, $view . self::FILE_EXTENSION));
         }
+
+        // Include footer if it's not a partial view
+
+        require self::PATH . 'partials/footer.inc.html.php';
+
 
         // Retrieves all content from the output buffer and ends it.
         // The captured content will be returned as a string.
