@@ -15,6 +15,7 @@ enum METHOD: string
 {
     case GET = 'GET';
     case POST = 'POST';
+    case GET_AND_POST = 'GET_POST';
 }
 
 class Router
@@ -48,6 +49,17 @@ class Router
     {
         self::$http_method = METHOD::POST->value;
         self::exec($uri, $class);
+    }
+
+    /**
+     * Defines a POST route.
+     * @param string $uri The URI pattern to match
+     * @param string $class The controller action or a redirect path
+     */
+    public static function get_and_post(string $uri, string $class = '') : void
+    {
+      self::$http_method = METHOD::GET_AND_POST->value;
+      self::exec($uri, $class);
     }
 
     /**
@@ -121,9 +133,12 @@ class Router
      */
     private static function is_http_method_valid() : bool
     {
-        return self::$http_method !== null && $_SERVER['REQUEST_METHOD'] === self::$http_method;
+      if (self::$http_method === METHOD::GET_AND_POST->value)
+      {
+        return $_SERVER['REQUEST_METHOD'] === METHOD::GET->value || $_SERVER['REQUEST_METHOD'] === METHOD::POST->value;
+      }
+      return $_SERVER['REQUEST_METHOD'] === self::$http_method;
     }
-
     /**
      * Determines if the given method string is a controller action string (contains '@').
      * (Note: This method is not directly used in exec's current flow, but is good for clarity)

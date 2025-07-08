@@ -7,23 +7,27 @@ use App\Kernel\View;
 class HomeController
 {
     // The index method for the home page
-    public function index()
+    public function index(): void
     {
         $data = [
             'name' => 'Hello, World!',
             'framework' => 'PHP Custom Framework'
         ];
 
-        $htmlContent = View::render('home/home', 'Selamat Datang', $data, true);
+        $html_content = View::render('home/home', 'Selamat Datang', $data, true);
 
-        echo $htmlContent;
+        echo $html_content;
     }
 
     public function edit(): void
     {
+      /*
        View::render('home/view', 'Pages', [
         'name' => 'Pages',
         'content' => 'Lorem ipsum dolor sit amet.'
        ], true); 
+      */
+
+      echo 'pler';
     }
 }

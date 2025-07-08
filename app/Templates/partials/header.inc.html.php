@@ -7,5 +7,4 @@
 </head>
 <body>
 
-</body>
-</html>
+<?php include 'message.inc.html.php'; ?>

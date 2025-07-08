@@ -17,14 +17,15 @@ try {
   */
 
   Router::get('/', 'HomeController@index');
+  Router::get('/edit', 'HomeController@edit');
   Router::get('/about', 'HomeController@about');
   Router::get('/contact', '/?uri=about');
 
-  Router::get('/signup', 'AccountController@signup');
-  Router::get('/signin', 'AccountController@signin');
-  Router::get('/account/edit', 'AccountController@edit');
+  Router::get_and_post('/signup', 'AccountController@signup');
+  Router::get_and_post('/signin', 'AccountController@signin');
+  Router::get_and_post('/account/edit', 'AccountController@edit');
   
-
+  Router::get_and_post('/payment', 'Payment Gateway');
 } catch (ViewNotFound $e) {
   throw new ViewNotFound(sprintf('%s', $e->getMessage()));
 }
