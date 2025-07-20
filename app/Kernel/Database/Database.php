@@ -28,17 +28,19 @@ class Database
     try 
     {
       static::$pdo = new PDO(
-        "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}",
-        $_ENV['DB_USER'],
-        $_ENV['DB_PASSWORD']
+        "mysql:host={$db['host']};dbname={$db['name']}",
+        $db['user'],
+        $db['password']
       );
       static::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       static::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    } catch (PDOException $e) 
+    } 
+    catch (PDOException $e) 
     {
       throw new Exception("Database connection failed: " . $e->getMessage());
     }
   }
+
 
   /**
    * Prepare a SQL query for execution.
@@ -47,21 +49,17 @@ class Database
    * @param array $binds An array of values to bind to the query.
    * @return void
    */
-  public static function query(string $sql, array $binds = []) : void
+  public static function query(string $sql, array $binds = [], bool $exec = true) : bool
   {
     static::$stmt = static::$pdo->prepare($sql);
-    // static::$stmt->execute($binds);
-    foreach($binds as $key => $value)
-    {
-      static::$stmt->bindValue($key, $value); 
+    foreach ($binds as $key => $value) {
+        static::$stmt->bindValue($key, $value);
     }
-
-    $exec = exec();
-
     if ($exec)
     {
-      static::$stmt->execute();
+      return static::$stmt->execute();
     }
+    return true;
   }
 
   public static function row_count(): int
@@ -97,7 +95,7 @@ class Database
   public static function get_all_fetch() : array
   {
     /* Null Coalescing operator */
-    return static::$stmt->fetchAll() ?? null;
+    return static::$stmt->fetchAll() ?: [];
   }
 
   public static function quoted(string $str): string

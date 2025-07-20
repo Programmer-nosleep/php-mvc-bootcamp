@@ -1,7 +1,7 @@
 <?php
 namespace App\Service;
 
-use App\Models\User as UserModel;
+use App\Models\User\User as UserModel;
 
 class User
 {
@@ -12,9 +12,9 @@ class User
   {
   }
 
-  public function create(array $user_details)
+  public function create(array $user_details) : bool
   {
-    $this->user_models->insert($user_details);
+    return $this->user_models->insert($user_details);
   }
 
   /**

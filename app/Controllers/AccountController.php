@@ -84,7 +84,12 @@ class AccountController
                     'password' => $password,
                 ];
 
-                $this->user_service->create($user);
+                if($this->user_service->create($user))
+                {
+                    redirect('/?uri=home');
+                } else {
+                    $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
+                }
 
                 redirect('/?uri=home');
                 exit(); // Important: Stop script execution after redirection.   
