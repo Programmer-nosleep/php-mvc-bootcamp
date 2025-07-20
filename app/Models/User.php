@@ -28,6 +28,21 @@ class User
     }
 
     /**
+     * Check if an account with the given email exists.
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function does_account_isexist(string $email) : bool
+    {
+      $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE email = :email LIMIT 1';
+      Database::query($sql, ['email' => $email]);
+      $user = Database::first_row_fetch();
+
+      return Database::row_count() > 1 && $user;
+    }
+
+    /**
      * Attempt to log a user in by verifying credentials.
      *
      * @param string $email
@@ -40,7 +55,7 @@ class User
       Database::query($sql, ['email' => $email]);
       $user = Database::first_row_fetch();
 
-      if (!$user) {
+      if (!$user || !isset($user['password'])) {
           return false; // email is cannot found. 
       }
 

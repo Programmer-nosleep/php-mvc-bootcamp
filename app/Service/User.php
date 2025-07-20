@@ -17,6 +17,11 @@ class User
     return $this->user_models->insert($user_details);
   }
 
+  public function does_account_isexist(string $email): bool
+  {
+    return $this->user_models->does_account_isexist($email);  
+  }
+
   /**
     * Validates the email format using PHP's filter.
     * You can add more complex email validation logic here.

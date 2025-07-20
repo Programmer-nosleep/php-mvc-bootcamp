@@ -25,7 +25,7 @@ class AccountController
      *
      * @param UserService $user_service An instance of the UserService.
      */
-    public function __construct(private UserService $user_service = new UserService())
+    public function __construct(private UserService $user_service)
     {
     }
 
