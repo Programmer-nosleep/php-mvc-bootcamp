@@ -51,10 +51,22 @@ class Database
   {
     static::$stmt = static::$pdo->prepare($sql);
     // static::$stmt->execute($binds);
-    foreach($binds as $key)
+    foreach($binds as $key => $value)
     {
-      
+      static::$stmt->bindValue($key, $value); 
     }
+
+    $exec = exec();
+
+    if ($exec)
+    {
+      static::$stmt->execute();
+    }
+  }
+
+  public static function row_count(): int
+  {
+    return static::$stmt->rowCount();
   }
 
   /**
@@ -62,7 +74,7 @@ class Database
    *
    * @return bool True on success, false on failure.
    */
-  public static function execute() : bool
+  public static function exec() : bool
   {
     return static::$stmt->execute();
   }
@@ -72,7 +84,7 @@ class Database
    *
    * @return mixed The first row of the result set, or false if there are no more rows.
    */
-  public static function first()
+  public static function first_row_fetch()
   {
     return static::$stmt->fetch();
   }
@@ -82,8 +94,14 @@ class Database
    *
    * @return array An array containing all of the remaining rows in the result set.
    */
-  public static function get() : array
+  public static function get_all_fetch() : array
   {
-    return static::$stmt->fetchAll();
+    /* Null Coalescing operator */
+    return static::$stmt->fetchAll() ?? null;
+  }
+
+  public static function quoted(string $str): string
+  {
+    return static::$pdo->quote($str) ?? null;
   }
 }

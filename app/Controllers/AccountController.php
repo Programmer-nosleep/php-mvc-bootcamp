@@ -83,7 +83,9 @@ class AccountController
                     'email' => $email,
                     'password' => $password,
                 ];
+
                 $this->user_service->create($user);
+
                 redirect('/?uri=home');
                 exit(); // Important: Stop script execution after redirection.   
               } 
