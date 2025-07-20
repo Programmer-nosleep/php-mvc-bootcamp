@@ -4,11 +4,12 @@ namespace App\Controllers;
 use App\Kernel\Input;
 use App\Kernel\View;
 use App\Service\User as UserService; 
-use App\Models\User;
+use App\Models\User\User as UserModel;
 use function App\redirect;
 
 class AccountController
-{
+{ 
+  private ?UserService $user_service = null;
     // Constants to define the message keys that will be used in the view.
     // This helps maintain consistency in message variable names throughout the application.
     private const MESSAGE_KEY = [
@@ -25,8 +26,9 @@ class AccountController
      *
      * @param UserService $user_service An instance of the UserService.
      */
-    public function __construct(private UserService $user_service)
+    public function __construct(?UserService $user_service = null)
     {
+        $this->user_service = $user_service ?? new UserService(new UserModel());
     }
 
     /**
@@ -38,8 +40,8 @@ class AccountController
         if (Input::get('signin_submit')) 
         {
             // For demonstration: echo the email from GET parameters
-            echo "Email from GET signin: " . Input::get('email');
             // In a real application, you would process login credentials here.
+            echo "Email from GET signin: " . Input::get('email');
         }
         
         // Render the sign-in view.

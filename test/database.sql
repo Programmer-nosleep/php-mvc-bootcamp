@@ -5,17 +5,17 @@ CREATE TABLE users (
   fullname VARCHAR(255) DEFAULT NULL,
   ip VARCHAR(46) NOT NULL DEFAULT '127.0.0.1',
   UNIQUE KEY (email),
-  PRIMARY KEY (userId),
+  PRIMARY KEY (userId)
 ) ENGINE = InnoDB CHARSET=utf8mb4;
 
-CREATE TABLE payment (
+CREATE TABLE payments (
   paymentId int(11) unsigned NOT NULL AUTO_INCREMENT,
   userId int(11) unsigned NOT NULL,
   paypalEmail VARCHAR(255) DEFAULT NULL,
   stripePublishableKey VARCHAR(55) DEFAULT NULL,
   stripePrivateKey VARCHAR(55) DEFAULT NULL,
-  currency CHAR(3) NOT NULL 'USD',
+  currency CHAR(3) NOT NULL DEFAULT 'USD',
   PRIMARY KEY (paymentId),
   UNIQUE KEY (userId),
-  FOREIGN KEY (userId) REFERENCES users(userId),
+  FOREIGN KEY (userId) REFERENCES users(userId)
 ) ENGINE = InnoDB CHARSET=utf8mb4;

@@ -139,6 +139,7 @@ class Router
       }
       return $_SERVER['REQUEST_METHOD'] === self::$http_method;
     }
+
     /**
      * Determines if the given method string is a controller action string (contains '@').
      * (Note: This method is not directly used in exec's current flow, but is good for clarity)
