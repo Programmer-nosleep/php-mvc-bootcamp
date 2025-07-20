@@ -36,7 +36,6 @@ final class View
         ob_start();
 
         // Include header if it's not a partial view
-
         require self::PATH . 'partials/header.inc.html.php';
 
 

@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Kernel\Input;
 use App\Kernel\View;
 use App\Service\User as UserService; 
+use App\Models\User;
 use function App\redirect;
 
 class AccountController
@@ -77,6 +78,12 @@ class AccountController
                  * Example: $this->user_service->registerUser($fullname, $email, $password);
                  *  After successful registration, redirect the user to the home page. 
                  */  
+                $user = [
+                    'fullname' => $fullname,
+                    'email' => $email,
+                    'password' => $password,
+                ];
+                $this->user_service->create($user);
                 redirect('/?uri=home');
                 exit(); // Important: Stop script execution after redirection.   
               } 

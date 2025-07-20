@@ -1,9 +1,22 @@
 <?php
 namespace App\Service;
 
+use App\Models\User as UserModel;
+
 class User
 {
   private const MIN_PASSWORD = 10;
+  private const MAXIMUM_EMAIL_LENGTH = 100;
+
+  public function __construct(private UserModel $user_models)
+  {
+  }
+
+  public function create(array $user_details)
+  {
+    $this->user_models->insert($user_details);
+  }
+
   /**
     * Validates the email format using PHP's filter.
     * You can add more complex email validation logic here.
@@ -13,7 +26,7 @@ class User
     */
     public function validate_email(string $email) : bool
     {
-      return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+      return strlen($email) <= self::MAXIMUM_EMAIL_LENGTH && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
