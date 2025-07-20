@@ -72,6 +72,11 @@ class AccountController
               // If all fields are present, proceed with email validation via UserService.
               if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
               {
+                if ($this->user_service->does_account_isexist($email))
+                {
+                  $view_vars[self::get_status_message('ERROR')] = 'An account with the same email address already exist.';
+                }
+
                 /**
                  * If email is valid, proceed with user registration (e.g., save to database).
                  * 
@@ -120,11 +125,11 @@ class AccountController
      */
     public function edit() : void
     {
-        // Render the account edit view.
-        // Assuming 'auth/edit' is the template file path.
-        // The 'false' indicates it's a full page.
-        $render = View::render('auth/edit', 'Edit Account' ); 
-        echo $render; 
+      // Render the account edit view.
+      // Assuming 'auth/edit' is the template file path.
+      // The 'false' indicates it's a full page.
+      $render = View::render('auth/edit', 'Edit Account' ); 
+      echo $render; 
     }
 
     /**
@@ -141,9 +146,9 @@ class AccountController
      */
     public static function get_status_message(string $status): string
     {
-        // Returns the value from the MESSAGE_KEY array based on the provided $status key.
-        // The null coalescing operator (??) is used to provide a default value of 'message'
-        // if the $status key does not exist in MESSAGE_KEY, preventing an undefined array key error.
-        return self::MESSAGE_KEY[$status] ?? 'message';
+      // Returns the value from the MESSAGE_KEY array based on the provided $status key.
+      // The null coalescing operator (??) is used to provide a default value of 'message'
+      // if the $status key does not exist in MESSAGE_KEY, preventing an undefined array key error.
+      return self::MESSAGE_KEY[$status] ?? 'message';
     }
 }
