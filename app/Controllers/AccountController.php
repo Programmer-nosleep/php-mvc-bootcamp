@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Kernel\Input;
+use App\Kernel\Session;
 use App\Kernel\View;
 use App\Service\User as UserService; 
 use App\Models\User as UserModel;
@@ -9,6 +10,7 @@ use function App\redirect;
 
 class AccountController
 { 
+  private Session $session;
   private ?UserService $user_service = null;
     // Constants to define the message keys that will be used in the view.
     // This helps maintain consistency in message variable names throughout the application.
@@ -36,19 +38,19 @@ class AccountController
      */
     public function signin() : void
     {
-        // Check if the signin form was submitted via GET method
-        if (Input::get('signin_submit')) 
-        {
-            // For demonstration: echo the email from GET parameters
-            // In a real application, you would process login credentials here.
-            echo "Email from GET signin: " . Input::get('email');
-        }
-        
-        // Render the sign-in view.
-        // Assuming 'auth/signin' is the template file path.
-        // The 'false' indicates it's a full page, not a partial.
-        $render = View::render('auth/signin', 'Sign In', ); 
-        echo $render;
+      // Check if the signin form was submitted via GET method
+      if (Input::get('signin_submit')) 
+      {
+          // For demonstration: echo the email from GET parameters
+          // In a real application, you would process login credentials here.
+          echo "Email from GET signin: " . Input::get('email');
+      }
+      
+      // Render the sign-in view.
+      // Assuming 'auth/signin' is the template file path.
+      // The 'false' indicates it's a full page, not a partial.
+      $render = View::render('auth/signin', 'Sign In', ); 
+      echo $render;
     }
 
     /**
@@ -57,70 +59,71 @@ class AccountController
      */
     public function signup() : void
     {
-        $view_vars = []; // Initialize an array to hold variables passed to the view (e.g., messages).
+      $view_vars = []; // Initialize an array to hold variables passed to the view (e.g., messages).
 
-        // Check if the signup form was submitted via POST method
-        if (Input::post('signup_submit'))
+      // Check if the signup form was submitted via POST method
+      if (Input::post('signup_submit'))
+      {
+        // Retrieve form data from POST request
+        $fullname = Input::post('fullname');
+        $email = Input::post('email');
+        $password = Input::post('password');
+
+        // Validate if all required fields are present and not empty.
+        // Using trim() for email to handle cases with only whitespace.
+        if (!empty($fullname) || !empty(trim($email)) || !empty($password))
         {
-            // Retrieve form data from POST request
-            $fullname = Input::post('fullname');
-            $email = Input::post('email');
-            $password = Input::post('password');
-
-            // Validate if all required fields are present and not empty.
-            // Using trim() for email to handle cases with only whitespace.
-            if (!empty($fullname) || !empty(trim($email)) || !empty($password))
+          // If all fields are present, proceed with email validation via UserService.
+          if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
+          {
+            if ($this->user_service->does_account_isexist($email))
             {
-              // If all fields are present, proceed with email validation via UserService.
-              if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
-              {
-                if ($this->user_service->does_account_isexist($email))
-                {
-                  $view_vars[self::get_status_message('ERROR')] = 'An account with the same email address already exist.';
-                } else {
-                  /**
-                   * If email is valid, proceed with user registration (e.g., save to database).
-                   * 
-                   * Example: $this->user_service->registerUser($fullname, $email, $password);
-                   *  After successful registration, redirect the user to the home page. 
-                   */  
-                  $user = [
-                      'fullname' => $fullname,
-                      'email' => $email,
-                      'password' => $password,
-                  ];
-  
-                  if($this->user_service->create($user))
-                  {
-                      redirect('/?uri=home');
-                      exit;
-                  } else {
-                      $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
-                  }
-                }
-
-                // redirect('/?uri=home');
-                // exit(); // Important: Stop script execution after redirection.   
-              } 
-              // If email validation fails.
-              else 
-              {
-                  // Set an error message for invalid email.
-                  $view_vars[self::get_status_message('ERROR')] = 'Invalid email address or password.';
-              }
+              $view_vars[self::get_status_message('ERROR')] = 'An account with the same email address already exist.';
             } else {
-              // Set an error message if any field is empty.
-              // Using self::get_status_message() to get the correct key ('error_message').
-              $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
-            } 
-        }
+              /**
+                * If email is valid, proceed with user registration (e.g., save to database).
+                * 
+                * Example: $this->user_service->registerUser($fullname, $email, $password);
+                *  After successful registration, redirect the user to the home page. 
+                */  
+              $user = [
+                  'fullname' => $fullname,
+                  'email' => $email,
+                  'password' => $password,
+              ];
+              if($userId = $this->user_service->create($user))
+              {
+                $this->user_service->set_authentication($userId, $email);
+                // $this->session->set('email', $email);
+                // $this->session->userId('userId', $userId);
+                  redirect('/');
+                  exit;
+              } else {
+                  $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
+              }
+            }
+            redirect('/?uri=home');
+            exit(); // Important: Stop script execution after redirection.   
+          } 
+          // If email validation fails.
+          else 
+          {
+              // Set an error message for invalid email.
+              $view_vars[self::get_status_message('ERROR')] = 'Invalid email address or password.';
+          }
+        } else {
+          // Set an error message if any field is empty.
+          // Using self::get_status_message() to get the correct key ('error_message').
+          $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
+        } 
+      }
 
-        // Render the sign-up view, passing any messages or other variables.
-        // 'auth/signup' is the template file path.
-        // 'false' indicates it's a full page.
-        // $view_vars contains messages to be displayed.
-        $render = View::render('auth/signup', 'Sign Up', $view_vars);
-        echo $render;
+      // Render the sign-up view, passing any messages or other variables.
+      // 'auth/signup' is the template file path.
+      // 'false' indicates it's a full page.
+      // $view_vars contains messages to be displayed.
+      $render = View::render('auth/signup', 'Sign Up', $view_vars);
+      echo $render;
     }
     
     /**

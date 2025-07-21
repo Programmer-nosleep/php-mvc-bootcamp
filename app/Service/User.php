@@ -1,15 +1,18 @@
 <?php
 namespace App\Service;
 
+use App\Kernel\Session;
 use App\Models\User as UserModel;
 
 class User
 {
+  private Session $session;
   private const MIN_PASSWORD = 6;
   private const MAXIMUM_EMAIL_LENGTH = 100;
 
   public function __construct(private UserModel $user_models)
   {
+    $this->session = new Session();
   }
 
   public function create(array $user_details) : bool
@@ -44,5 +47,16 @@ class User
     public function validate_password(string $password) : bool
     {
       return strlen($password) > self::MIN_PASSWORD;
+    }
+
+    public function set_authentication(string $email, int $userId) : void
+    {
+      Session::set('email', $email);
+      Session::setUserId($userId);
+    }
+
+    public function logout() : void
+    {
+      $this->session->destroy();
     }
 }

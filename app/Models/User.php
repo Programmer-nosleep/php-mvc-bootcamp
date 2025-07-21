@@ -13,18 +13,22 @@ class User
      * @param array $user_details ['fullname' => ..., 'email' => ..., 'password' => ...]
      * @return bool
      */
-    public function insert(array $user_details): bool
+    public function insert(array $user_details) : string | bool
     {
-        if (!isset($user_details['fullname'], $user_details['email'], $user_details['password'])) {
-            return false;
-        }
+      if (!isset($user_details['fullname'], $user_details['email'], $user_details['password'])) {
+        return false;
+      }
 
-        $sql = 'INSERT INTO ' . self::TABLE . ' (fullname, email, password) VALUES (:fullname, :email, :password)';
+      $sql = 'INSERT INTO ' . self::TABLE . ' (fullname, email, password) VALUES (:fullname, :email, :password)';
 
-        // Hash password before storing
-        $user_details['password'] = password_hash($user_details['password'], PASSWORD_BCRYPT);
+      // Hash password before storing
+      $user_details['password'] = password_hash($user_details['password'], PASSWORD_BCRYPT);
+      if(Database::query($sql, $user_details))
+      {
+        return Database::last_insert_byid();
+      }
 
-        return (bool) Database::query($sql, $user_details);
+      return false;
     }
 
     /**

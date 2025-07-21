@@ -98,6 +98,11 @@ class Database
     return static::$stmt->fetchAll() ?: [];
   }
 
+  public static function last_insert_byid() : string | bool 
+  {
+    return static::$pdo->lastInsertId() ?? null;
+  }
+
   public static function quoted(string $str): string
   {
     return static::$pdo->quote($str) ?? null;
