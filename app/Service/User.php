@@ -1,7 +1,7 @@
 <?php
 namespace App\Service;
 
-use App\Models\User\User as UserModel;
+use App\Models\User as UserModel;
 
 class User
 {

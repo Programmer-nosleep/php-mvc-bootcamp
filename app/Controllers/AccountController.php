@@ -4,7 +4,7 @@ namespace App\Controllers;
 use App\Kernel\Input;
 use App\Kernel\View;
 use App\Service\User as UserService; 
-use App\Models\User\User as UserModel;
+use App\Models\User as UserModel;
 use function App\redirect;
 
 class AccountController
