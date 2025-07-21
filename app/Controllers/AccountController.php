@@ -69,7 +69,7 @@ class AccountController
 
             // Validate if all required fields are present and not empty.
             // Using trim() for email to handle cases with only whitespace.
-            if (empty($fullname) || empty(trim($email)) || empty($password))
+            if (!empty($fullname) || !empty(trim($email)) || !empty($password))
             {
               // If all fields are present, proceed with email validation via UserService.
               if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
@@ -77,29 +77,30 @@ class AccountController
                 if ($this->user_service->does_account_isexist($email))
                 {
                   $view_vars[self::get_status_message('ERROR')] = 'An account with the same email address already exist.';
-                }
-
-                /**
-                 * If email is valid, proceed with user registration (e.g., save to database).
-                 * 
-                 * Example: $this->user_service->registerUser($fullname, $email, $password);
-                 *  After successful registration, redirect the user to the home page. 
-                 */  
-                $user = [
-                    'fullname' => $fullname,
-                    'email' => $email,
-                    'password' => $password,
-                ];
-
-                if($this->user_service->create($user))
-                {
-                    redirect('/?uri=home');
                 } else {
-                    $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
+                  /**
+                   * If email is valid, proceed with user registration (e.g., save to database).
+                   * 
+                   * Example: $this->user_service->registerUser($fullname, $email, $password);
+                   *  After successful registration, redirect the user to the home page. 
+                   */  
+                  $user = [
+                      'fullname' => $fullname,
+                      'email' => $email,
+                      'password' => $password,
+                  ];
+  
+                  if($this->user_service->create($user))
+                  {
+                      redirect('/?uri=home');
+                      exit;
+                  } else {
+                      $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
+                  }
                 }
 
-                redirect('/?uri=home');
-                exit(); // Important: Stop script execution after redirection.   
+                // redirect('/?uri=home');
+                // exit(); // Important: Stop script execution after redirection.   
               } 
               // If email validation fails.
               else 

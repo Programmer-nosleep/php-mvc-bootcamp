@@ -1,7 +1,7 @@
 <?php use function App\site_local_url; ?>
 
 <div class="">
-  <form method="POST" action="<?= site_local_url('/?uri=signin') ?>">
+  <form method="POST" action="<?= site_local_url('/signin') ?>">
     <div class="">
       <label for="name">Name: </label>
       <input type="text" name="fullname" id="name" required>

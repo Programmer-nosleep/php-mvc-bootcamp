@@ -5,7 +5,7 @@
     <?php endif; ?>
 
     <div class="">
-        <form method="POST" action="<?= site_local_url('/?uri=signup') ?>">
+        <form method="POST" action="<?= site_local_url('/signup') ?>">
             <div class="">
                 <label for="name">Name: </label>
                 <input type="text" name="fullname" id="name" required>

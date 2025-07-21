@@ -5,7 +5,7 @@ use App\Models\User as UserModel;
 
 class User
 {
-  private const MIN_PASSWORD = 10;
+  private const MIN_PASSWORD = 6;
   private const MAXIMUM_EMAIL_LENGTH = 100;
 
   public function __construct(private UserModel $user_models)

@@ -19,7 +19,7 @@ try {
   Router::get('/', 'HomeController@index');
   Router::get('/edit', 'HomeController@edit');
   Router::get('/about', 'HomeController@about');
-  Router::get('/contact', '/?uri=about');
+  Router::get('/contact', '/about');
 
   Router::get_and_post('/signup', 'AccountController@signup');
   Router::get_and_post('/signin', 'AccountController@signin');

@@ -71,47 +71,34 @@ class Router
     {
         // Normalize the defined URI pattern
         $uri = '/' . trim($uri, '/');
-        // Get the current URL from the $_GET['uri'] parameter (requires web server rewrite)
-        $url = '/';
-        $url .= !empty($_GET['uri']) ? $_GET['uri'] : ''; // Corrected: removed trailing '/' for root route
+
+        // Get the current request URI from the server
+        $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
         // Attempt to match the current URL against the defined URI pattern
-        if (preg_match("#^$uri$#", $url, $params))
-        {
-            // Check if the route definition is for a redirection
-            if (self::is_redirect($method))
-            {
-                // Perform the redirection
-                header(sprintf('Location: %s/%s', $_ENV['LOCAL_URL'], trim($method, '/'))); // Trim for clean redirect
-                exit(); // Important: exit after header redirect
+        if (preg_match("#^$uri$#", $url, $params)) {
+            if (self::is_redirect($method)) {
+                header(sprintf('Location: %s/%s', $_ENV['LOCAL_URL'], trim($method, '/')));
+                exit();
             } else {
-                // If it's not a redirect, validate the HTTP method
-                if (!self::is_http_method_valid())
-                {
+                if (!self::is_http_method_valid()) {
                     throw new InvalidArgumentException(sprintf('Invalid "%s" HTTP Request', $_SERVER['REQUEST_METHOD']));
                 }
 
-                // Split the controller string (e.g., 'HomeController@index')
                 $split = explode(self::SEPARATOR, $method);
-                $class_name = self::CONTROLLER . $split[0]; // Prepend the base namespace
-                $action_method = $split[1]; // The method name within the controller
+                $class_name = self::CONTROLLER . $split[0];
+                $action_method = $split[1];
 
                 try {
-                    // Check if the controller class exists
                     if (!class_exists($class_name)) {
                         throw new InvalidArgumentException("Controller class $class_name not found.");
                     }
 
                     $reflection = new ReflectionClass($class_name);
 
-                    // Check if the class exists and has the specified method
-                    if ($reflection->hasMethod($action_method))
-                    {
+                    if ($reflection->hasMethod($action_method)) {
                         $action = new ReflectionMethod($class_name, $action_method);
-                        // Ensure the method is public before invoking
-                        if ($action->isPublic())
-                        {
-                            // Invoke the controller method with extracted parameters
+                        if ($action->isPublic()) {
                             return $action->invokeArgs(new $class_name, self::get_action_parameters($params));
                         } else {
                             throw new InvalidArgumentException(sprintf("Method '%s' in class '%s' is not public.", $action_method, $class_name));
@@ -120,12 +107,12 @@ class Router
                         throw new InvalidArgumentException(sprintf("Method '%s' not found in class '%s'.", $action_method, $class_name));
                     }
                 } catch (ReflectionException $e) {
-                    // Catch any reflection-related exceptions
                     throw new InvalidArgumentException(sprintf("Reflection Error: %s", $e->getMessage()));
                 }
-            } 
-        } 
+            }
+        }
     }
+
 
     /**
      * Checks if the current HTTP request method matches the defined route method.
