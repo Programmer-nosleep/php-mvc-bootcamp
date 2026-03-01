@@ -4,6 +4,7 @@ namespace App\Router;
 
 use App\Exceptions\ViewNotFound;
 use App\Kernel\Http\Router;
+use App\Kernel\Session;
 
 try {
   /** 
@@ -17,15 +18,29 @@ try {
   */
 
   Router::get('/', 'HomeController@index');
-  Router::get('/edit', 'HomeController@edit');
   Router::get('/about', 'HomeController@about');
-  Router::get('/contact', '/about');
+  Router::get_and_post('/contact', 'HomeController@contact');
 
-  Router::get_and_post('/signup', 'AccountController@signup');
-  Router::get_and_post('/signin', 'AccountController@signin');
-  Router::get_and_post('/account/edit', 'AccountController@edit');
-  
-  Router::get_and_post('/payment', 'Payment Gateway');
+  Router::get('/p/([a-z0-9\\.\\-_]+)', 'PaymentController@showItem');
+
+  new Session();
+  $isLoggedIn = Session::getUserId() !== null;
+
+  if (!$isLoggedIn) {
+    Router::get_and_post('/signup', 'AccountController@signup');
+    Router::get_and_post('/signin', 'AccountController@signin');
+  }
+
+  if ($isLoggedIn) {
+    Router::get_and_post('/account/edit', 'AccountController@edit');
+    Router::get_and_post('/account/password', 'AccountController@password');
+    Router::get('/account/logout', 'AccountController@logout');
+
+    Router::get_and_post('/payment', 'PaymentController@payment');
+    Router::get_and_post('/item', 'PaymentController@item');
+  }
+
+  Router::end();
 } catch (ViewNotFound $e) {
   throw new ViewNotFound(sprintf('%s', $e->getMessage()));
 }

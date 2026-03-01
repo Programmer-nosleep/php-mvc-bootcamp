@@ -1,160 +1,196 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Kernel\Input;
-use App\Kernel\Session;
 use App\Kernel\View;
-use App\Service\User as UserService; 
-use App\Models\User as UserModel;
+use App\Service\User as UserService;
+use App\Service\UserValidation;
 use function App\redirect;
 
-class AccountController
-{ 
-  private Session $session;
-  private ?UserService $user_service = null;
-    // Constants to define the message keys that will be used in the view.
-    // This helps maintain consistency in message variable names throughout the application.
-    private const MESSAGE_KEY = [
-        'SUCCESS' => 'success_message',
-        'WARNING' => 'warning_message',
-        'ERROR' => 'error_message',
-    ];
+final class AccountController extends Controller
+{
+    private UserService $userService;
+    private UserValidation $userValidation;
 
-    /**
-     * Constructor for the AccountController.
-     * Uses constructor property promotion to inject the UserService.
-     * A default instance is provided for convenience, but dependency injection
-     * frameworks would typically manage this.
-     *
-     * @param UserService $user_service An instance of the UserService.
-     */
-    public function __construct(?UserService $user_service = null)
+    public function __construct(?UserService $userService = null, ?UserValidation $userValidation = null)
     {
-        $this->user_service = $user_service ?? new UserService(new UserModel());
+        parent::__construct();
+
+        $this->userService = $userService ?? new UserService();
+        $this->userValidation = $userValidation ?? new UserValidation();
     }
 
-    /**
-     * Handles the sign-in page display and form submission (if using GET).
-     */
-    public function signin() : void
+    public function signup(): void
     {
-      // Check if the signin form was submitted via GET method
-      if (Input::get('signin_submit')) 
-      {
-          // For demonstration: echo the email from GET parameters
-          // In a real application, you would process login credentials here.
-          echo "Email from GET signin: " . Input::get('email');
-      }
-      
-      // Render the sign-in view.
-      // Assuming 'auth/signin' is the template file path.
-      // The 'false' indicates it's a full page, not a partial.
-      $render = View::render('auth/signin', 'Sign In', ); 
-      echo $render;
-    }
+        $viewVariables = [
+            'isLoggedIn' => $this->isLoggedIn,
+        ];
 
-    /**
-     * Handles the sign-up page display and form submission.
-     * Processes POST requests for registration.
-     */
-    public function signup() : void
-    {
-      $view_vars = []; // Initialize an array to hold variables passed to the view (e.g., messages).
+        if (Input::postExists('signup_submit')) {
+            $fullName = Input::postTrimmed('fullname');
+            $email = Input::postTrimmed('email');
+            $password = (string)Input::post('password', '');
 
-      // Check if the signup form was submitted via POST method
-      if (Input::post('signup_submit'))
-      {
-        // Retrieve form data from POST request
-        $fullname = Input::post('fullname');
-        $email = Input::post('email');
-        $password = Input::post('password');
+            if ($fullName !== '' && $email !== '' && $password !== '') {
+                if (
+                    $this->userValidation->isNameValid($fullName) &&
+                    $this->userValidation->isEmailValid($email) &&
+                    $this->userValidation->isPasswordValid($password)
+                ) {
+                    if ($this->userService->doesAccountEmailExist($email)) {
+                        $viewVariables[View::get_status_message('ERROR')] = 'An account with the same email address already exists.';
+                    } else {
+                        $user = [
+                            'fullname' => $fullName,
+                            'email' => $email,
+                            'password' => $this->userService->hashPassword($password),
+                        ];
 
-        // Validate if all required fields are present and not empty.
-        // Using trim() for email to handle cases with only whitespace.
-        if (!empty($fullname) || !empty(trim($email)) || !empty($password))
-        {
-          // If all fields are present, proceed with email validation via UserService.
-          if ($this->user_service->validate_email($email) && ($this->user_service->validate_password($password)))
-          {
-            if ($this->user_service->does_account_isexist($email))
-            {
-              $view_vars[self::get_status_message('ERROR')] = 'An account with the same email address already exist.';
+                        if ($userId = $this->userService->create($user)) {
+                            $this->userSessionService->setAuthentication($userId, $email, $fullName);
+                            redirect('/');
+                        } else {
+                            $viewVariables[View::get_status_message('ERROR')] = 'An error occurred while creating your account. Please try again.';
+                        }
+                    }
+                } else {
+                    $viewVariables[View::get_status_message('ERROR')] = 'Email / password / name is not valid.';
+                }
             } else {
-              /**
-                * If email is valid, proceed with user registration (e.g., save to database).
-                * 
-                * Example: $this->user_service->registerUser($fullname, $email, $password);
-                *  After successful registration, redirect the user to the home page. 
-                */  
-              $user = [
-                  'fullname' => $fullname,
-                  'email' => $email,
-                  'password' => $password,
-              ];
-              if($userId = $this->user_service->create($user))
-              {
-                $this->user_service->set_authentication($userId, $email);
-                // $this->session->set('email', $email);
-                // $this->session->userId('userId', $userId);
-                  redirect('/');
-                  exit;
-              } else {
-                  $view_vars[self::get_status_message('ERROR')] = 'An error while createing your account has occured. Please try again.';
-              }
+                $viewVariables[View::get_status_message('ERROR')] = 'All fields are required.';
             }
-            redirect('/?uri=home');
-            exit(); // Important: Stop script execution after redirection.   
-          } 
-          // If email validation fails.
-          else 
-          {
-              // Set an error message for invalid email.
-              $view_vars[self::get_status_message('ERROR')] = 'Invalid email address or password.';
-          }
-        } else {
-          // Set an error message if any field is empty.
-          // Using self::get_status_message() to get the correct key ('error_message').
-          $view_vars[self::get_status_message('ERROR')] = 'All fields are required.';
-        } 
-      }
+        }
 
-      // Render the sign-up view, passing any messages or other variables.
-      // 'auth/signup' is the template file path.
-      // 'false' indicates it's a full page.
-      // $view_vars contains messages to be displayed.
-      $render = View::render('auth/signup', 'Sign Up', $view_vars);
-      echo $render;
-    }
-    
-    /**
-     * Handles the account edit page display.
-     */
-    public function edit() : void
-    {
-      // Render the account edit view.
-      // Assuming 'auth/edit' is the template file path.
-      // The 'false' indicates it's a full page.
-      $render = View::render('auth/edit', 'Edit Account' ); 
-      echo $render; 
+        echo View::render('account/signup', 'Sign Up', $viewVariables);
     }
 
-    /**
-     * Retrieves the appropriate string key for a given message status type.
-     * This method serves as a helper to get the actual variable name to be used
-     * in the view context array (e.g., 'success_message', 'error_message') based on
-     * an easily readable status key (e.g., 'SUCCESS', 'ERROR').
-     *
-     * @param string $status The desired message status key.
-     * Expected values include: 'SUCCESS', 'WARNING', 'ERROR'.
-     * @return string The corresponding string key for the message variable in the view.
-     * If the given status key is not found in MESSAGE_KEY,
-     * this method will return the string 'message' as a default value.
-     */
-    public static function get_status_message(string $status): string
+    public function signin(): void
     {
-      // Returns the value from the MESSAGE_KEY array based on the provided $status key.
-      // The null coalescing operator (??) is used to provide a default value of 'message'
-      // if the $status key does not exist in MESSAGE_KEY, preventing an undefined array key error.
-      return self::MESSAGE_KEY[$status] ?? 'message';
+        $viewVariables = [
+            'isLoggedIn' => $this->isLoggedIn,
+        ];
+
+        if (Input::postExists('signin_submit')) {
+            $email = Input::postTrimmed('email');
+            $password = (string)Input::post('password', '');
+
+            $userDetails = $email !== '' ? $this->userService->getDetailsFromEmail($email) : false;
+            $isLoginValid = is_array($userDetails)
+                && !empty($userDetails['password'])
+                && $this->userService->verifyPassword($password, (string)$userDetails['password']);
+
+            if ($isLoginValid) {
+                $this->userSessionService->setAuthentication(
+                    (int)$userDetails['userId'],
+                    (string)$userDetails['email'],
+                    (string)($userDetails['fullname'] ?? '')
+                );
+                redirect('/');
+            }
+
+            $viewVariables[View::get_status_message('ERROR')] = 'Incorrect login.';
+        }
+
+        echo View::render('account/signin', 'Sign In', $viewVariables);
+    }
+
+    public function edit(): void
+    {
+        $userId = $this->userSessionService->getId();
+        if ($userId === null) {
+            redirect('/signin');
+        }
+
+        $userDetails = $this->userService->getDetailsFromId($userId);
+        if (!$userDetails) {
+            $this->userSessionService->logout();
+            redirect('/signin');
+        }
+
+        $viewVariables = [
+            'user' => $userDetails,
+            'isLoggedIn' => $this->isLoggedIn,
+        ];
+
+        if (Input::postExists('edit_submit')) {
+            $name = Input::postTrimmed('fullname');
+            $email = Input::postTrimmed('email');
+
+            if ($name !== '' && $email !== '') {
+                $hasEmailChanged = $email !== ($userDetails['email'] ?? '');
+                $hasNameChanged = $name !== ($userDetails['fullname'] ?? '');
+
+                if ($hasEmailChanged) {
+                    if (!$this->userValidation->isEmailValid($email) || $this->userService->doesAccountEmailExist($email)) {
+                        $viewVariables[View::get_status_message('ERROR')][] = 'Email is invalid or already taken.';
+                    } else {
+                        $this->userService->updateEmail($userId, $email);
+                        $this->userSessionService->setEmail($email);
+                        $userDetails['email'] = $email;
+                        $viewVariables[View::get_status_message('SUCCESS')][] = 'Email has been updated.';
+                    }
+                }
+
+                if ($hasNameChanged) {
+                    if (!$this->userValidation->isNameValid($name)) {
+                        $viewVariables[View::get_status_message('ERROR')][] = 'Name is either too short or too long.';
+                    } else {
+                        $this->userService->updateName($userId, $name);
+                        $this->userSessionService->setName($name);
+                        $userDetails['fullname'] = $name;
+                        $viewVariables[View::get_status_message('SUCCESS')][] = 'Name has been updated.';
+                    }
+                }
+
+                $viewVariables['user'] = $userDetails;
+            } else {
+                $viewVariables[View::get_status_message('ERROR')] = 'All fields are required.';
+            }
+        }
+
+        echo View::render('account/edit', 'Edit Account', $viewVariables);
+    }
+
+    public function password(): void
+    {
+        $userId = $this->userSessionService->getId();
+        if ($userId === null) {
+            redirect('/signin');
+        }
+
+        $viewVariables = [
+            'isLoggedIn' => $this->isLoggedIn,
+        ];
+
+        if (Input::postExists('password_submit')) {
+            $currentPassword = (string)Input::post('current_password', '');
+            $newPassword = (string)Input::post('new_password', '');
+            $confirmPassword = (string)Input::post('confirm_password', '');
+
+            $hashedPassword = $this->userService->getHashedPassword($userId);
+
+            if ($hashedPassword === '' || !$this->userService->verifyPassword($currentPassword, $hashedPassword)) {
+                $viewVariables[View::get_status_message('ERROR')] = 'Your current password is incorrect.';
+            } elseif ($newPassword !== $confirmPassword) {
+                $viewVariables[View::get_status_message('ERROR')] = 'Your passwords didn\'t match.';
+            } elseif (!$this->userValidation->isPasswordValid($newPassword)) {
+                $viewVariables[View::get_status_message('ERROR')] = 'Password is too weak.';
+            } else {
+                $newHashedPassword = $this->userService->hashPassword($newPassword);
+                $this->userService->updatePassword($userId, $newHashedPassword);
+                $viewVariables[View::get_status_message('SUCCESS')] = 'Password successfully updated.';
+            }
+        }
+
+        echo View::render('account/password', 'Edit Password', $viewVariables);
+    }
+
+    public function logout(): void
+    {
+        $this->userSessionService->logout();
+        redirect('/');
     }
 }
+

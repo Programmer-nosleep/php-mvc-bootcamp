@@ -21,8 +21,6 @@ class User
 
       $sql = 'INSERT INTO ' . self::TABLE . ' (fullname, email, password) VALUES (:fullname, :email, :password)';
 
-      // Hash password before storing
-      $user_details['password'] = password_hash($user_details['password'], PASSWORD_BCRYPT);
       if(Database::query($sql, $user_details))
       {
         return Database::last_insert_byid();
@@ -39,30 +37,54 @@ class User
      */
     public function does_account_isexist(string $email) : bool
     {
-      $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE email = :email LIMIT 1';
+      $sql = 'SELECT email FROM ' . self::TABLE . ' WHERE email = :email LIMIT 1';
       Database::query($sql, ['email' => $email]);
-      $user = Database::first_row_fetch();
 
-      return Database::row_count() > 1 && $user;
+      return Database::row_count() >= 1;
     }
 
     /**
-     * Attempt to log a user in by verifying credentials.
+     * Fetch user details by email or userId.
      *
-     * @param string $email
-     * @param string $password
-     * @return bool True if login successful, false otherwise.
+     * @param string $unique_value
+     * @return array|false User row or false when not found.
      */
-    public function login(string $email, string $password): bool
+    public function get_details(string $unique_value): array|false
     {
-      $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE email = :email LIMIT 1';
-      Database::query($sql, ['email' => $email]);
+      $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE email = :value OR userId = :value LIMIT 1';
+      Database::query($sql, ['value' => $unique_value]);
+
       $user = Database::first_row_fetch();
+      return $user ?: false;
+    }
 
-      if (!$user || !isset($user['password'])) {
-          return false; // email is cannot found. 
-      }
+    public function update_email(int|string $user_id, string $email): bool
+    {
+      $sql = 'UPDATE ' . self::TABLE . ' SET email = :email WHERE userId = :userId LIMIT 1';
 
-      return password_verify($password, $user['password']);
+      return Database::query($sql, [
+        'userId' => $user_id,
+        'email' => $email,
+      ]);
+    }
+
+    public function update_name(int|string $user_id, string $name): bool
+    {
+      $sql = 'UPDATE ' . self::TABLE . ' SET fullname = :fullname WHERE userId = :userId LIMIT 1';
+
+      return Database::query($sql, [
+        'userId' => $user_id,
+        'fullname' => $name,
+      ]);
+    }
+
+    public function update_password(int|string $user_id, string $hashed_password): bool
+    {
+      $sql = 'UPDATE ' . self::TABLE . ' SET password = :password WHERE userId = :userId LIMIT 1';
+
+      return Database::query($sql, [
+        'userId' => $user_id,
+        'password' => $hashed_password,
+      ]);
     }
 }

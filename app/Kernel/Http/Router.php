@@ -29,6 +29,9 @@ class Router
     // Stores the HTTP method for the current route being processed
     private static ?string $http_method = null;
 
+    // Tracks if any route matched the current request
+    private static bool $is_page_found = false;
+
     /**
      * Defines a GET route.
      * @param string $uri The URI pattern to match (e.g., '/users/{id}')
@@ -77,9 +80,10 @@ class Router
 
         // Attempt to match the current URL against the defined URI pattern
         if (preg_match("#^$uri$#", $url, $params)) {
+            self::$is_page_found = true;
             if (self::is_redirect($method)) {
-                header(sprintf('Location: %s/%s', $_ENV['LOCAL_URL'], trim($method, '/')));
-                exit();
+                header('Location: ' . \App\site_local_url($method));
+                exit;
             } else {
                 if (!self::is_http_method_valid()) {
                     throw new InvalidArgumentException(sprintf('Invalid "%s" HTTP Request', $_SERVER['REQUEST_METHOD']));
@@ -111,6 +115,25 @@ class Router
                 }
             }
         }
+    }
+
+    public static function end(): void
+    {
+        if (!self::$is_page_found) {
+            (new \App\Controllers\ErrorController())->notFound();
+        }
+    }
+
+    public static function doesContain(string $uriSegment): bool
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+        $segment = trim($uriSegment, '/');
+
+        if ($segment === '') {
+            return $path === '/';
+        }
+
+        return str_contains(trim($path, '/'), $segment);
     }
 
 

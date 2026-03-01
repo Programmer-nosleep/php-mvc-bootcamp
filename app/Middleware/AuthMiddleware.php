@@ -3,6 +3,7 @@
 namespace App\Middleware;
 
 use function App\redirect;
+use App\Kernel\Session;
 /**
  * Class AuthMiddleware
  * 
@@ -31,8 +32,9 @@ class AuthMiddleware
      */
     public static function handle(string $key): void
     {
+        new Session();
         // Check if a user session exists, which indicates the user is logged in.
-        $is_authenticated = isset($_SESSION['users']);
+        $is_authenticated = Session::getUserId() !== null;
 
         switch ($key) {
             // If the route requires authentication...

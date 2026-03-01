@@ -1,19 +1,18 @@
-<div class="center">
-  <?php if (!empty($error_message)): ?>
-    <span class="error">
-      <?= $error_message ?>
-    </span>
-  <?php endif ?>
+<?php if (!empty($error_message)): ?>
+  <?php foreach ((array)$error_message as $message): ?>
+    <div class="alert error"><?= $message ?></div>
+  <?php endforeach ?>
+<?php endif ?>
 
-  <?php if (!empty($success_message)): ?>
-    <span class="success">
-      <?= $success_message ?>
-    </span>
-  <?php endif ?>
+<?php if (!empty($success_message)): ?>
+  <?php foreach ((array)$success_message as $message): ?>
+    <div class="alert success"><?= $message ?></div>
+  <?php endforeach ?>
+<?php endif ?>
 
-  <?php if (!empty($warn_message)): ?>
-    <span class="warning">
-      <?= $warn_message ?>
-    </span>
-  <?php endif ?>
-</div>
+<?php if (!empty($warning_message)): ?>
+  <?php foreach ((array)$warning_message as $message): ?>
+    <div class="alert warning"><?= $message ?></div>
+  <?php endforeach ?>
+<?php endif ?>
+

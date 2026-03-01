@@ -1,62 +1,72 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Service;
 
-use App\Kernel\Session;
 use App\Models\User as UserModel;
 
-class User
+final class User
 {
-  private Session $session;
-  private const MIN_PASSWORD = 6;
-  private const MAXIMUM_EMAIL_LENGTH = 100;
+    private const PASSWORD_COST_FACTOR = 12;
+    private const PASSWORD_ALGORITHM = PASSWORD_BCRYPT;
 
-  public function __construct(private UserModel $user_models)
-  {
-    $this->session = new Session();
-  }
+    private UserModel $userModel;
 
-  public function create(array $user_details) : bool
-  {
-    return $this->user_models->insert($user_details);
-  }
-
-  public function does_account_isexist(string $email): bool
-  {
-    return $this->user_models->does_account_isexist($email);  
-  }
-
-  /**
-    * Validates the email format using PHP's filter.
-    * You can add more complex email validation logic here.
-    *
-    * @param string $email The email address to validate.
-    * @return bool True if the email is valid, false otherwise.
-    */
-    public function validate_email(string $email) : bool
+    public function __construct(?UserModel $userModel = null)
     {
-      return strlen($email) <= self::MAXIMUM_EMAIL_LENGTH && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        $this->userModel = $userModel ?? new UserModel();
     }
 
-    /**
-     * Validates the password format using 
-     * You can add more complexity validation logic here.
-     * 
-     * @param string $password the email address to validate.
-     * @return bool True if the email is valid, false otherwise.
-    */ 
-    public function validate_password(string $password) : bool
+    public function create(array $userDetails): string|bool
     {
-      return strlen($password) > self::MIN_PASSWORD;
+        return $this->userModel->insert($userDetails);
     }
 
-    public function set_authentication(string $email, int $userId) : void
+    public function updateEmail(int|string $userId, string $email): bool
     {
-      Session::set('email', $email);
-      Session::setUserId($userId);
+        return $this->userModel->update_email($userId, $email);
     }
 
-    public function logout() : void
+    public function updateName(int|string $userId, string $name): bool
     {
-      $this->session->destroy();
+        return $this->userModel->update_name($userId, $name);
+    }
+
+    public function updatePassword(int|string $userId, string $hashedPassword): bool
+    {
+        return $this->userModel->update_password($userId, $hashedPassword);
+    }
+
+    public function doesAccountEmailExist(string $email): bool
+    {
+        return $this->userModel->does_account_isexist($email);
+    }
+
+    public function hashPassword(string $password): string
+    {
+        return (string) password_hash($password, self::PASSWORD_ALGORITHM, ['cost' => self::PASSWORD_COST_FACTOR]);
+    }
+
+    public function verifyPassword(string $clearPassword, string $hashedPassword): bool
+    {
+        return password_verify($clearPassword, $hashedPassword);
+    }
+
+    public function getDetailsFromEmail(string $email): array|false
+    {
+        return $this->userModel->get_details($email);
+    }
+
+    public function getDetailsFromId(int|string $userId): array|false
+    {
+        return $this->userModel->get_details((string) $userId);
+    }
+
+    public function getHashedPassword(int|string $userId): string
+    {
+        $userDetails = $this->getDetailsFromId($userId);
+
+        return $userDetails['password'] ?? '';
     }
 }
+

@@ -69,8 +69,6 @@ final class View
     private static function is_view_exist(string $filename): bool
     {
         $fullPath = self::PATH . $filename . self::FILE_EXTENSION;
-        // --- IMPORTANT: This line will help you debug! ---
-        error_log("Attempting to load view from: " . $fullPath);
         return is_file(self::PATH . $filename . self::FILE_EXTENSION);
     }
 
