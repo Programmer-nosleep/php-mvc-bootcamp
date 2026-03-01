@@ -45,6 +45,38 @@ function escape(?string $value): string
   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+function csrf_token(): string
+{
+  return \App\Kernel\Security\Csrf::token();
+}
+
+function csrf_field(): string
+{
+  return sprintf('<input type="hidden" name="_token" value="%s">', escape(csrf_token()));
+}
+
+function midtrans_is_production(): bool
+{
+  return filter_var($_ENV['MIDTRANS_IS_PRODUCTION'] ?? 'false', FILTER_VALIDATE_BOOL);
+}
+
+function midtrans_client_key(): string
+{
+  return (string)($_ENV['MIDTRANS_CLIENT_KEY'] ?? '');
+}
+
+function midtrans_is_enabled(): bool
+{
+  return midtrans_client_key() !== '' && !empty($_ENV['MIDTRANS_SERVER_KEY'] ?? '');
+}
+
+function midtrans_snap_js_url(): string
+{
+  return midtrans_is_production()
+    ? 'https://app.midtrans.com/snap/snap.js'
+    : 'https://app.sandbox.midtrans.com/snap/snap.js';
+}
+
 function redirect(string $value = '', bool $permanent = false) : void
 {
   if ($permanent)

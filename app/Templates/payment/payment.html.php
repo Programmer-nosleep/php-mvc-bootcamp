@@ -1,6 +1,7 @@
 <?php
 use function App\escape;
 use function App\site_local_url;
+use function App\csrf_field;
 
 $paypalEmail = (string)($paypalEmail ?? '');
 $currency = strtoupper((string)($currency ?? 'USD'));
@@ -15,6 +16,7 @@ $currencies = ['USD', 'IDR', 'EUR', 'GBP', 'SGD', 'AUD', 'JPY'];
   </div>
 
   <form class="form" method="POST" action="<?= site_local_url('/payment') ?>">
+    <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
         <label for="paypal_email">PayPal email</label>
@@ -47,4 +49,3 @@ $currencies = ['USD', 'IDR', 'EUR', 'GBP', 'SGD', 'AUD', 'JPY'];
     </div>
   </form>
 </section>
-

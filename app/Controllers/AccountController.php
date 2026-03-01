@@ -50,6 +50,7 @@ final class AccountController extends Controller
 
                         if ($userId = $this->userService->create($user)) {
                             $this->userSessionService->setAuthentication($userId, $email, $fullName);
+                            \App\Kernel\Security\Csrf::regenerate();
                             redirect('/');
                         } else {
                             $viewVariables[View::get_status_message('ERROR')] = 'An error occurred while creating your account. Please try again.';
@@ -87,6 +88,7 @@ final class AccountController extends Controller
                     (string)$userDetails['email'],
                     (string)($userDetails['fullname'] ?? '')
                 );
+                \App\Kernel\Security\Csrf::regenerate();
                 redirect('/');
             }
 
@@ -193,4 +195,3 @@ final class AccountController extends Controller
         redirect('/');
     }
 }
-

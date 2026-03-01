@@ -1,6 +1,7 @@
 <?php
 use function App\escape;
 use function App\site_local_url;
+use function App\csrf_field;
 
 $disabled = !empty($isFieldDisabled) && $isFieldDisabled === true ? 'disabled' : '';
 ?>
@@ -11,7 +12,14 @@ $disabled = !empty($isFieldDisabled) && $isFieldDisabled === true ? 'disabled' :
     <p class="muted">Buat 1 item dukungan yang bisa dibagikan.</p>
   </div>
 
+  <?php if ($disabled !== ''): ?>
+    <div class="actions">
+      <a class="btn primary" href="<?= site_local_url('/payment') ?>">Setup Payment</a>
+    </div>
+  <?php endif ?>
+
   <form class="form" method="POST" action="<?= site_local_url('/item') ?>">
+    <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
         <label for="id_name">ID Name</label>
@@ -93,4 +101,3 @@ $disabled = !empty($isFieldDisabled) && $isFieldDisabled === true ? 'disabled' :
     </div>
   </section>
 <?php endif ?>
-

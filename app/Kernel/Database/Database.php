@@ -53,7 +53,11 @@ class Database
   {
     static::$stmt = static::$pdo->prepare($sql);
     foreach ($binds as $key => $value) {
-        static::$stmt->bindValue($key, $value);
+        $param = is_string($key)
+          ? (str_starts_with($key, ':') ? $key : ':' . $key)
+          : $key;
+
+        static::$stmt->bindValue($param, $value);
     }
     if ($exec)
     {

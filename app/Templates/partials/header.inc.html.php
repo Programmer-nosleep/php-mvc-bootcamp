@@ -2,6 +2,7 @@
 use App\Kernel\Http\Router;
 
 use function App\asset_url;
+use function App\csrf_token;
 use function App\escape;
 use function App\site_local_url;
 use function App\site_name;
@@ -12,6 +13,8 @@ use function App\site_name;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
+  <meta name="app-url" content="<?= escape(site_local_url('/')) ?>">
+  <meta name="csrf-token" content="<?= escape(csrf_token()) ?>">
   <title><?= escape($title) ?> - <?= escape(site_name()) ?></title>
   <link rel="stylesheet" href="<?= asset_url('css/app.css') ?>">
 </head>
@@ -42,4 +45,3 @@ use function App\site_name;
 
   <main class="container">
     <?php include __DIR__ . '/message.inc.html.php'; ?>
-

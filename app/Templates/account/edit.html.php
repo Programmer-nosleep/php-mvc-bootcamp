@@ -1,6 +1,7 @@
 <?php
 use function App\escape;
 use function App\site_local_url;
+use function App\csrf_field;
 
 $user = is_array($user ?? null) ? $user : [];
 ?>
@@ -12,6 +13,7 @@ $user = is_array($user ?? null) ? $user : [];
   </div>
 
   <form class="form" method="POST" action="<?= site_local_url('/account/edit') ?>">
+    <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
         <label for="fullname">Full name</label>
@@ -44,4 +46,3 @@ $user = is_array($user ?? null) ? $user : [];
     </div>
   </form>
 </section>
-

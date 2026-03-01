@@ -1,5 +1,6 @@
 <?php
 use function App\site_local_url;
+use function App\csrf_field;
 ?>
 
 <section class="card stack">
@@ -7,6 +8,7 @@ use function App\site_local_url;
   <p class="muted">Kirim pesan. Kami akan balas secepatnya.</p>
 
   <form class="form" method="POST" action="<?= site_local_url('/contact') ?>">
+    <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
         <label for="name">Name</label>
@@ -34,4 +36,3 @@ use function App\site_local_url;
     </div>
   </form>
 </section>
-

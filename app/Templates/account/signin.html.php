@@ -1,5 +1,6 @@
 <?php
 use function App\site_local_url;
+use function App\csrf_field;
 ?>
 
 <section class="card stack auth">
@@ -9,6 +10,7 @@ use function App\site_local_url;
   </div>
 
   <form class="form" method="POST" action="<?= site_local_url('/signin') ?>">
+    <?= csrf_field() ?>
     <div class="field">
       <label for="email">Email</label>
       <input id="email" name="email" type="email" autocomplete="email" required>
@@ -25,4 +27,3 @@ use function App\site_local_url;
     </div>
   </form>
 </section>
-

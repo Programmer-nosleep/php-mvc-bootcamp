@@ -18,4 +18,15 @@ final class ErrorController
             'isLoggedIn' => Session::getUserId() !== null,
         ]);
     }
+
+    public function csrfMismatch(): void
+    {
+        http_response_code(419);
+
+        new Session();
+
+        echo View::render('errors/419', 'Page Expired', [
+            'isLoggedIn' => Session::getUserId() !== null,
+        ]);
+    }
 }

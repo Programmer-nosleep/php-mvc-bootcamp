@@ -10,7 +10,6 @@ use App\Service\Payment as PaymentService;
 use App\Service\UserValidation;
 
 use function App\redirect;
-use function App\site_local_url;
 
 final class PaymentController extends Controller
 {
@@ -63,10 +62,7 @@ final class PaymentController extends Controller
                         'paypalEmail' => $paypalEmail,
                         'currency' => $currency,
                     ]);
-                    $viewVariables[View::get_status_message('SUCCESS')] = sprintf(
-                        'Payment successfully added. You can now <a href="%s">add an item</a>.',
-                        site_local_url('/item')
-                    );
+                    $viewVariables[View::get_status_message('SUCCESS')] = 'Payment successfully added.';
                 }
             } else {
                 $viewVariables[View::get_status_message('ERROR')] = 'All fields are required.';
@@ -101,10 +97,7 @@ final class PaymentController extends Controller
 
         if (!$this->paymentService->doesPaymentExist($userId)) {
             $viewVariables['isFieldDisabled'] = true;
-            $viewVariables[View::get_status_message('ERROR')] = sprintf(
-                'You need to set <a href="%s">your payment method</a> first.',
-                site_local_url('/payment')
-            );
+            $viewVariables[View::get_status_message('ERROR')] = 'You need to set your payment method first.';
         }
 
         if (Input::postExists('item_submit') && $viewVariables['isFieldDisabled'] !== true) {

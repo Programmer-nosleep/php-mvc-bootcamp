@@ -1,5 +1,6 @@
 <?php
 use function App\site_local_url;
+use function App\csrf_field;
 ?>
 
 <section class="card stack auth">
@@ -9,6 +10,7 @@ use function App\site_local_url;
   </div>
 
   <form class="form" method="POST" action="<?= site_local_url('/account/password') ?>">
+    <?= csrf_field() ?>
     <div class="field">
       <label for="current_password">Current password</label>
       <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
@@ -32,4 +34,3 @@ use function App\site_local_url;
     </div>
   </form>
 </section>
-
