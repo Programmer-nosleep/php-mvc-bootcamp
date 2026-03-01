@@ -23,6 +23,9 @@ try {
 
   Router::get('/p/([a-z0-9\\.\\-_]+)', 'PaymentController@showItem');
 
+  Router::post('/midtrans/token', 'MidtransController@token');
+  Router::post('/midtrans/notification', 'MidtransController@notification');
+
   new Session();
   $isLoggedIn = Session::getUserId() !== null;
 

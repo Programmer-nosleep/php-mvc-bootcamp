@@ -31,7 +31,7 @@ final class Bootstrap
 
   private function connect_db(): void
   {
-    $requiredKeys = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+    $requiredKeys = ['DB_HOST', 'DB_NAME', 'DB_USER'];
     foreach ($requiredKeys as $key) {
       if (empty($_ENV[$key] ?? '')) {
         return;
@@ -42,7 +42,7 @@ final class Bootstrap
       'host' => $_ENV['DB_HOST'],
       'name' => $_ENV['DB_NAME'],
       'user' => $_ENV['DB_USER'],
-      'password' => $_ENV['DB_PASSWORD'],
+      'password' => $_ENV['DB_PASSWORD'] ?? '',
     ];
 
     Database::connect($conn);

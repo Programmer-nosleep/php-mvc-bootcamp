@@ -32,3 +32,20 @@ CREATE TABLE items (
   UNIQUE KEY (idName),
   FOREIGN KEY (userId) REFERENCES users(userId)
 ) ENGINE = InnoDB CHARSET=utf8mb4;
+
+CREATE TABLE transactions (
+  transactionId int(11) unsigned NOT NULL AUTO_INCREMENT,
+  orderId varchar(50) NOT NULL,
+  idName varchar(50) NOT NULL,
+  itemName varchar(100) NOT NULL,
+  amount int(11) unsigned NOT NULL,
+  currency char(3) NOT NULL DEFAULT 'IDR',
+  status varchar(30) NOT NULL DEFAULT 'created',
+  paymentType varchar(30) DEFAULT NULL,
+  gateway varchar(20) NOT NULL DEFAULT 'midtrans',
+  rawResponse text DEFAULT NULL,
+  createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (transactionId),
+  UNIQUE KEY (orderId)
+) ENGINE = InnoDB CHARSET=utf8mb4;

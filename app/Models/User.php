@@ -1,11 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Kernel\Database\Database;
+use App\Kernel\Database\DB;
+use App\Kernel\Database\Model;
 
-class User
+final class User extends Model
 {
-    private const TABLE = 'users';
+    protected static string $table = 'users';
+    protected static string $primaryKey = 'userId';
 
     /**
      * Insert a new user into the database.
@@ -19,14 +23,7 @@ class User
         return false;
       }
 
-      $sql = 'INSERT INTO ' . self::TABLE . ' (fullname, email, password) VALUES (:fullname, :email, :password)';
-
-      if(Database::query($sql, $user_details))
-      {
-        return Database::last_insert_byid();
-      }
-
-      return false;
+      return DB::table(self::$table)->insert($user_details);
     }
 
     /**
@@ -37,10 +34,9 @@ class User
      */
     public function does_account_isexist(string $email) : bool
     {
-      $sql = 'SELECT email FROM ' . self::TABLE . ' WHERE email = :email LIMIT 1';
-      Database::query($sql, ['email' => $email]);
-
-      return Database::row_count() >= 1;
+      return DB::table(self::$table)
+        ->where('email', $email)
+        ->exists();
     }
 
     /**
@@ -51,40 +47,35 @@ class User
      */
     public function get_details(string $unique_value): array|false
     {
-      $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE email = :value OR userId = :value LIMIT 1';
-      Database::query($sql, ['value' => $unique_value]);
+      if (ctype_digit($unique_value)) {
+        return DB::table(self::$table)
+          ->where('userId', (int) $unique_value)
+          ->first();
+      }
 
-      $user = Database::first_row_fetch();
-      return $user ?: false;
+      return DB::table(self::$table)
+        ->where('email', $unique_value)
+        ->first();
     }
 
     public function update_email(int|string $user_id, string $email): bool
     {
-      $sql = 'UPDATE ' . self::TABLE . ' SET email = :email WHERE userId = :userId LIMIT 1';
-
-      return Database::query($sql, [
-        'userId' => $user_id,
-        'email' => $email,
-      ]);
+      return DB::table(self::$table)
+        ->where('userId', $user_id)
+        ->update(['email' => $email]);
     }
 
     public function update_name(int|string $user_id, string $name): bool
     {
-      $sql = 'UPDATE ' . self::TABLE . ' SET fullname = :fullname WHERE userId = :userId LIMIT 1';
-
-      return Database::query($sql, [
-        'userId' => $user_id,
-        'fullname' => $name,
-      ]);
+      return DB::table(self::$table)
+        ->where('userId', $user_id)
+        ->update(['fullname' => $name]);
     }
 
     public function update_password(int|string $user_id, string $hashed_password): bool
     {
-      $sql = 'UPDATE ' . self::TABLE . ' SET password = :password WHERE userId = :userId LIMIT 1';
-
-      return Database::query($sql, [
-        'userId' => $user_id,
-        'password' => $hashed_password,
-      ]);
+      return DB::table(self::$table)
+        ->where('userId', $user_id)
+        ->update(['password' => $hashed_password]);
     }
 }

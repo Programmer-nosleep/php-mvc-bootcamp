@@ -5,7 +5,14 @@
   }
 
   function buildUrl(path) {
-    const base = getMetaContent("app-url") || "/";
+    const baseMeta = getMetaContent("app-url") || "/";
+    const base = (() => {
+      try {
+        return new URL(baseMeta, window.location.origin).toString();
+      } catch {
+        return window.location.origin + "/";
+      }
+    })();
     const clean = String(path || "").replace(/^\/+/, "");
     return new URL(clean, base).toString();
   }

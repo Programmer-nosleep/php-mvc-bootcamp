@@ -3,40 +3,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Kernel\Database\Database;
+use App\Kernel\Database\DB;
+use App\Kernel\Database\Model;
 
-final class Item
+final class Item extends Model
 {
-    private const TABLE = 'items';
+    protected static string $table = 'items';
+    protected static string $primaryKey = 'itemId';
 
     public function insert(int|string $userId, array $itemDetails): string|bool
     {
-        $sql = 'INSERT INTO ' . self::TABLE . ' (userId, idName, itemName, businessName, summary, price) 
-            VALUES (:userId, :idName, :itemName, :businessName, :summary, :price)';
-
-        $binds = [
-            'userId' => $userId,
-            'idName' => $itemDetails['idName'],
-            'itemName' => $itemDetails['itemName'],
-            'businessName' => $itemDetails['businessName'],
-            'summary' => $itemDetails['summary'],
-            'price' => $itemDetails['price'],
-        ];
-
-        if (Database::query($sql, $binds)) {
-            return Database::last_insert_byid();
-        }
-
-        return false;
-    }
-
-    public function update(int|string $userId, array $itemDetails): bool
-    {
-        $sql = 'UPDATE ' . self::TABLE . ' 
-            SET idName = :idName, itemName = :itemName, businessName = :businessName, summary = :summary, price = :price 
-            WHERE userId = :userId LIMIT 1';
-
-        return Database::query($sql, [
+        return DB::table(self::$table)->insert([
             'userId' => $userId,
             'idName' => $itemDetails['idName'],
             'itemName' => $itemDetails['itemName'],
@@ -46,35 +23,59 @@ final class Item
         ]);
     }
 
+    public function update(int|string $userId, array $itemDetails): bool
+    {
+        return DB::table(self::$table)
+            ->where('userId', $userId)
+            ->update([
+                'idName' => $itemDetails['idName'],
+                'itemName' => $itemDetails['itemName'],
+                'businessName' => $itemDetails['businessName'],
+                'summary' => $itemDetails['summary'],
+                'price' => $itemDetails['price'],
+            ]);
+    }
+
     public function get(string $value): array|false
     {
-        $sql = 'SELECT i.*, p.paypalEmail, p.currency, u.fullname, u.email
-            FROM ' . self::TABLE . ' AS i 
-            INNER JOIN payments AS p USING(userId) 
-            INNER JOIN users AS u USING(userId)
-            WHERE i.idName = :value OR i.userId = :value 
-            LIMIT 1';
+        $query = DB::table(self::$table)
+            ->select([
+                'items.itemId',
+                'items.userId',
+                'items.idName',
+                'items.itemName',
+                'items.businessName',
+                'items.summary',
+                'items.price',
+                'payments.paypalEmail',
+                'payments.currency',
+                'users.fullname',
+                'users.email',
+            ])
+            ->join('payments', 'payments.userId', '=', 'items.userId')
+            ->join('users', 'users.userId', '=', 'items.userId')
+            ->limit(1);
 
-        Database::query($sql, ['value' => $value]);
+        if (ctype_digit($value)) {
+            $query->where('items.userId', (int) $value);
+        } else {
+            $query->where('items.idName', $value);
+        }
 
-        $item = Database::first_row_fetch();
-        return $item ?: false;
+        return $query->first();
     }
 
     public function has_user_an_item(int|string $userId): bool
     {
-        $sql = 'SELECT userId FROM ' . self::TABLE . ' WHERE userId = :userId LIMIT 1';
-        Database::query($sql, ['userId' => $userId]);
-
-        return Database::row_count() >= 1;
+        return DB::table(self::$table)
+            ->where('userId', $userId)
+            ->exists();
     }
 
     public function does_id_name_exist(string $idName): bool
     {
-        $sql = 'SELECT idName FROM ' . self::TABLE . ' WHERE idName = :idName LIMIT 1';
-        Database::query($sql, ['idName' => $idName]);
-
-        return Database::row_count() >= 1;
+        return DB::table(self::$table)
+            ->where('idName', $idName)
+            ->exists();
     }
 }
-

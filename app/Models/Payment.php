@@ -3,50 +3,40 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Kernel\Database\Database;
+use App\Kernel\Database\DB;
+use App\Kernel\Database\Model;
 
-final class Payment
+final class Payment extends Model
 {
-    private const TABLE = 'payments';
+    protected static string $table = 'payments';
+    protected static string $primaryKey = 'paymentId';
 
     public function insert(array $details): string|bool
     {
-        $sql = 'INSERT INTO ' . self::TABLE . ' (userId, paypalEmail, currency) VALUES (:userId, :paypalEmail, :currency)';
-
-        if (Database::query($sql, $details)) {
-            return Database::last_insert_byid();
-        }
-
-        return false;
+        return DB::table(self::$table)->insert($details);
     }
 
     public function does_details_exist(int|string $userId): bool
     {
-        $sql = 'SELECT paymentId FROM ' . self::TABLE . ' WHERE userId = :userId LIMIT 1';
-        Database::query($sql, ['userId' => $userId]);
-
-        return Database::row_count() >= 1;
+        return DB::table(self::$table)
+            ->where('userId', $userId)
+            ->exists();
     }
 
     public function update(int|string $userId, string $paypalEmail, string $currency): bool
     {
-        $sql = 'UPDATE ' . self::TABLE . ' SET paypalEmail = :paypalEmail, currency = :currency WHERE userId = :userId LIMIT 1';
-
-        return Database::query($sql, [
-            'userId' => $userId,
-            'paypalEmail' => $paypalEmail,
-            'currency' => $currency,
-        ]);
+        return DB::table(self::$table)
+            ->where('userId', $userId)
+            ->update([
+                'paypalEmail' => $paypalEmail,
+                'currency' => $currency,
+            ]);
     }
 
     public function get_details(int|string $userId): array|false
     {
-        $sql = 'SELECT * FROM ' . self::TABLE . ' WHERE userId = :userId LIMIT 1';
-
-        Database::query($sql, ['userId' => $userId]);
-
-        $details = Database::first_row_fetch();
-        return $details ?: false;
+        return DB::table(self::$table)
+            ->where('userId', $userId)
+            ->first();
     }
 }
-
