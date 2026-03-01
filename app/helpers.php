@@ -15,8 +15,34 @@ function url_join(string $base, string $path = ''): string
   return $base . '/' . ltrim($path, '/');
 }
 
+function request_base_path(): string
+{
+  $scriptName = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+  if ($scriptName === '') {
+    $basePath = parse_url($_ENV['LOCAL_URL'] ?? '', PHP_URL_PATH) ?: '';
+    return rtrim($basePath, '/');
+  }
+
+  $dir = str_replace('\\', '/', dirname($scriptName));
+  if ($dir === '/' || $dir === '.' || $dir === '\\') {
+    return '';
+  }
+
+  return rtrim($dir, '/');
+}
+
 function site_local_url(string $value = ''): string
 {
+  $host = (string)($_SERVER['HTTP_HOST'] ?? '');
+  if ($host !== '') {
+    $https = (string)($_SERVER['HTTPS'] ?? '');
+    $scheme = (!empty($https) && $https !== 'off') ? 'https' : 'http';
+    $origin = $scheme . '://' . $host;
+
+    $base = url_join($origin, request_base_path());
+    return url_join($base, $value);
+  }
+
   return url_join($_ENV['LOCAL_URL'] ?? '', $value);
 }
 
@@ -37,7 +63,24 @@ function site_name(): string
 
 function asset_url(string $path = ''): string
 {
-  return site_local_url('/public/assets/' . ltrim($path, '/'));
+  $path = ltrim($path, '/');
+
+  $basePath = request_base_path();
+  $documentRoot = (string)($_SERVER['DOCUMENT_ROOT'] ?? '');
+
+  if ($documentRoot !== '') {
+    $root = rtrim($documentRoot, DIRECTORY_SEPARATOR) . str_replace('/', DIRECTORY_SEPARATOR, $basePath);
+
+    if (is_file($root . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . $path)) {
+      return site_local_url('/assets/' . $path);
+    }
+
+    if (is_file($root . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . $path)) {
+      return site_local_url('/public/assets/' . $path);
+    }
+  }
+
+  return site_local_url('/public/assets/' . $path);
 }
 
 function escape(?string $value): string

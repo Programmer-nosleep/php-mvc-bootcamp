@@ -165,8 +165,7 @@ class Router
     private static function current_path(): string
     {
         $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-        $basePath = parse_url($_ENV['LOCAL_URL'] ?? '', PHP_URL_PATH) ?: '';
-        $basePath = rtrim($basePath, '/');
+        $basePath = rtrim(\App\request_base_path(), '/');
 
         if ($basePath !== '') {
             if ($path === $basePath) {
