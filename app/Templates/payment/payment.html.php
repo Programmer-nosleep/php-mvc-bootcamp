@@ -15,7 +15,7 @@ $currencies = ['USD', 'IDR', 'EUR', 'GBP', 'SGD', 'AUD', 'JPY'];
     <p class="muted">Simpan detail pembayaran untuk menerima dukungan.</p>
   </div>
 
-  <form class="form" method="POST" action="<?= site_local_url('/payment') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/payment')) ?>">
     <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
@@ -45,7 +45,7 @@ $currencies = ['USD', 'IDR', 'EUR', 'GBP', 'SGD', 'AUD', 'JPY'];
 
     <div class="actions">
       <button class="btn primary" type="submit" name="payment_submit" value="1">Save</button>
-      <a class="btn" href="<?= site_local_url('/item') ?>">Next: Item</a>
+      <a class="btn" href="<?= escape(site_local_url('/item')) ?>">Next: Item</a>
     </div>
   </form>
 </section>

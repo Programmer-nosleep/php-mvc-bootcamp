@@ -12,7 +12,7 @@ $user = is_array($user ?? null) ? $user : [];
     <p class="muted">Perbarui nama atau email kamu.</p>
   </div>
 
-  <form class="form" method="POST" action="<?= site_local_url('/account/edit') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/account/edit')) ?>">
     <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
@@ -42,7 +42,7 @@ $user = is_array($user ?? null) ? $user : [];
 
     <div class="actions">
       <button class="btn primary" type="submit" name="edit_submit" value="1">Save Changes</button>
-      <a class="btn" href="<?= site_local_url('/account/password') ?>">Change Password</a>
+      <a class="btn" href="<?= escape(site_local_url('/account/password')) ?>">Change Password</a>
     </div>
   </form>
 </section>

@@ -104,7 +104,13 @@ class Router
                 !\App\Kernel\Security\Csrf::validate(\App\Kernel\Security\Csrf::fromRequest())
             ) {
                 self::$is_page_found = true;
-                (new \App\Controllers\ErrorController())->csrfMismatch();
+                if (self::is_json_request()) {
+                    http_response_code(419);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['message' => 'CSRF token mismatch.'], JSON_UNESCAPED_UNICODE);
+                } else {
+                    (new \App\Controllers\ErrorController())->csrfMismatch();
+                }
                 exit;
             }
 
@@ -181,6 +187,16 @@ class Router
         }
 
         return in_array($normalized, self::CSRF_EXCEPT_PATHS, true);
+    }
+
+    private static function is_json_request(): bool
+    {
+        $accept = (string)($_SERVER['HTTP_ACCEPT'] ?? '');
+        if (str_contains($accept, 'application/json')) {
+            return true;
+        }
+
+        return (string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
     }
 
     /**

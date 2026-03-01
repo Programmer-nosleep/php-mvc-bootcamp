@@ -1,6 +1,7 @@
 <?php
 use function App\site_local_url;
 use function App\csrf_field;
+use function App\escape;
 ?>
 
 <section class="card stack auth">
@@ -9,7 +10,7 @@ use function App\csrf_field;
     <p class="muted">Buat akun untuk mulai menerima dukungan.</p>
   </div>
 
-  <form class="form" method="POST" action="<?= site_local_url('/signup') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/signup')) ?>">
     <?= csrf_field() ?>
     <div class="field">
       <label for="fullname">Full name</label>
@@ -29,7 +30,7 @@ use function App\csrf_field;
 
     <div class="actions">
       <button class="btn primary" type="submit" name="signup_submit" value="1">Sign Up</button>
-      <a class="btn" href="<?= site_local_url('/signin') ?>">I already have an account</a>
+      <a class="btn" href="<?= escape(site_local_url('/signin')) ?>">I already have an account</a>
     </div>
   </form>
 </section>

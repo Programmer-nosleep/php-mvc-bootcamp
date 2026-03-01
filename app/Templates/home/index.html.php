@@ -13,11 +13,11 @@ use function App\site_local_url;
 
     <div class="actions">
       <?php if (!empty($isLoggedIn) && $isLoggedIn === true): ?>
-        <a class="btn primary" href="<?= site_local_url('/payment') ?>">Setup Payment</a>
-        <a class="btn" href="<?= site_local_url('/item') ?>">Buat Item</a>
+        <a class="btn primary" href="<?= escape(site_local_url('/payment')) ?>">Setup Payment</a>
+        <a class="btn" href="<?= escape(site_local_url('/item')) ?>">Buat Item</a>
       <?php else: ?>
-        <a class="btn primary" href="<?= site_local_url('/signup') ?>">Mulai Gratis</a>
-        <a class="btn" href="<?= site_local_url('/signin') ?>">Sign In</a>
+        <a class="btn primary" href="<?= escape(site_local_url('/signup')) ?>">Mulai Gratis</a>
+        <a class="btn" href="<?= escape(site_local_url('/signin')) ?>">Sign In</a>
       <?php endif ?>
     </div>
   </div>
@@ -46,4 +46,3 @@ use function App\site_local_url;
     <p class="muted">Bagikan URL publik dan terima dukungan dari siapa pun.</p>
   </div>
 </section>
-

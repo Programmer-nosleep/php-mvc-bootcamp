@@ -28,9 +28,12 @@ class Database
     try 
     {
       static::$pdo = new PDO(
-        "mysql:host={$db['host']};dbname={$db['name']}",
+        "mysql:host={$db['host']};dbname={$db['name']};charset=utf8mb4",
         $db['user'],
-        $db['password']
+        $db['password'],
+        [
+          PDO::ATTR_EMULATE_PREPARES => false,
+        ]
       );
       static::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       static::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

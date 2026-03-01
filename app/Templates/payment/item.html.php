@@ -14,11 +14,11 @@ $disabled = !empty($isFieldDisabled) && $isFieldDisabled === true ? 'disabled' :
 
   <?php if ($disabled !== ''): ?>
     <div class="actions">
-      <a class="btn primary" href="<?= site_local_url('/payment') ?>">Setup Payment</a>
+      <a class="btn primary" href="<?= escape(site_local_url('/payment')) ?>">Setup Payment</a>
     </div>
   <?php endif ?>
 
-  <form class="form" method="POST" action="<?= site_local_url('/item') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/item')) ?>">
     <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
@@ -82,7 +82,7 @@ $disabled = !empty($isFieldDisabled) && $isFieldDisabled === true ? 'disabled' :
 
     <div class="actions">
       <button class="btn primary" type="submit" name="item_submit" value="1" <?= $disabled ?>>Save</button>
-      <a class="btn" href="<?= site_local_url('/payment') ?>">Back</a>
+      <a class="btn" href="<?= escape(site_local_url('/payment')) ?>">Back</a>
     </div>
   </form>
 </section>

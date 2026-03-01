@@ -15,16 +15,16 @@ use function App\site_name;
       </div>
 
       <div class="footer-links">
-        <a href="<?= site_local_url('/about') ?>">About</a>
-        <a href="<?= site_local_url('/contact') ?>">Contact</a>
-        <a href="<?= site_local_url('/') ?>">Home</a>
+        <a href="<?= escape(site_local_url('/about')) ?>">About</a>
+        <a href="<?= escape(site_local_url('/contact')) ?>">Contact</a>
+        <a href="<?= escape(site_local_url('/')) ?>">Home</a>
       </div>
 
       <div class="footer-meta muted">
-        &copy; <?= date('Y') ?> <a href="<?= site_local_url('/') ?>"><?= escape(site_name()) ?></a>
+        &copy; <?= date('Y') ?> <a href="<?= escape(site_local_url('/')) ?>"><?= escape(site_name()) ?></a>
       </div>
     </div>
   </footer>
-  <script src="<?= asset_url('js/app.js') ?>" defer></script>
+  <script src="<?= escape(asset_url('js/app.js')) ?>" defer></script>
 </body>
 </html>

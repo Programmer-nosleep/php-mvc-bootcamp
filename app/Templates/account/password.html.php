@@ -1,6 +1,7 @@
 <?php
 use function App\site_local_url;
 use function App\csrf_field;
+use function App\escape;
 ?>
 
 <section class="card stack auth">
@@ -9,7 +10,7 @@ use function App\csrf_field;
     <p class="muted">Gunakan password yang kuat dan unik.</p>
   </div>
 
-  <form class="form" method="POST" action="<?= site_local_url('/account/password') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/account/password')) ?>">
     <?= csrf_field() ?>
     <div class="field">
       <label for="current_password">Current password</label>
@@ -30,7 +31,7 @@ use function App\csrf_field;
 
     <div class="actions">
       <button class="btn primary" type="submit" name="password_submit" value="1">Update Password</button>
-      <a class="btn" href="<?= site_local_url('/account/edit') ?>">Back</a>
+      <a class="btn" href="<?= escape(site_local_url('/account/edit')) ?>">Back</a>
     </div>
   </form>
 </section>

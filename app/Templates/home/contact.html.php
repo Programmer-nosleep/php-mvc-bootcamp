@@ -1,13 +1,14 @@
 <?php
 use function App\site_local_url;
 use function App\csrf_field;
+use function App\escape;
 ?>
 
 <section class="card stack">
   <h1 class="h2">Contact Us</h1>
   <p class="muted">Kirim pesan. Kami akan balas secepatnya.</p>
 
-  <form class="form" method="POST" action="<?= site_local_url('/contact') ?>">
+  <form class="form" method="POST" action="<?= escape(site_local_url('/contact')) ?>">
     <?= csrf_field() ?>
     <div class="grid grid-2">
       <div class="field">
